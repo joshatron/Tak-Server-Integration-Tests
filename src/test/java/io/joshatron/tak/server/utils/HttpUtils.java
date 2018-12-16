@@ -111,10 +111,27 @@ public class HttpUtils {
         return client.execute(request);
     }
 
+    public static HttpResponse changeUsername(String username, String password, String newPassword, HttpClient client) throws IOException {
+        String payload = "{";
+        if (newPassword != null) {
+            payload += "\"text\": \"" + newPassword + "\"";
+        }
+        payload += "}";
+
+        HttpPost request = new HttpPost(baseUrl + "/account/changename");
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        if (username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
+
     public static HttpResponse changePassword(String username, String password, String newPassword, HttpClient client) throws IOException {
         String payload = "{";
         if(newPassword != null) {
-            payload += "\"updated\": \"" + newPassword + "\"";
+            payload += "\"text\": \"" + newPassword + "\"";
         }
         payload += "}";
 
@@ -134,6 +151,24 @@ public class HttpUtils {
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse searchUser(String username, String userId, HttpClient client) throws IOException {
+        StringBuilder params = new StringBuilder("?");
+        if(username != null) {
+            params.append("user=");
+            params.append(username);
+            if(userId != null) {
+                params.append("&");
+            }
+        }
+        if(userId != null) {
+            params.append("id=");
+            params.append(userId);
+        }
+        HttpGet request = new HttpGet(baseUrl + "/account/user" + params.toString());
 
         return client.execute(request);
     }

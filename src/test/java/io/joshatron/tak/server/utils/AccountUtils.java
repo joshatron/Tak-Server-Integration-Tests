@@ -3,6 +3,8 @@ package io.joshatron.tak.server.utils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 import org.junit.Assert;
 
 import java.io.IOException;
@@ -26,6 +28,21 @@ public class AccountUtils {
         }
         else {
             return null;
+        }
+    }
+
+    public static void changeUsername(User user, String newName, HttpClient client, int expected) throws IOException {
+        HttpResponse response;
+        if(user != null) {
+            response = HttpUtils.changePassword(user.getUsername(), user.getPassword(), newName, client);
+        }
+        else {
+            response = HttpUtils.changePassword(null, null, newName, client);
+        }
+        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+        if(expected == HttpStatus.SC_NO_CONTENT) {
+            user.setUsername(newName);
+            authenticate(user, client, HttpStatus.SC_NO_CONTENT);
         }
     }
 
@@ -53,5 +70,21 @@ public class AccountUtils {
             response = HttpUtils.authenticate(null, null, client);
         }
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+    }
+
+    public static UserInfo seachUsers(String username, String userId, HttpClient client, int expected) throws IOException {
+        HttpResponse response;
+        response = HttpUtils.searchUser(username, userId, client);
+        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+
+        if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            String contents = EntityUtils.toString(response.getEntity());
+            JSONObject json = new JSONObject(contents);
+
+            return new UserInfo(json.getString("username"), json.getString("userId"));
+        }
+        else {
+            return null;
+        }
     }
 }
