@@ -34,10 +34,10 @@ public class AccountUtils {
     public static void changeUsername(User user, String newName, HttpClient client, int expected) throws IOException {
         HttpResponse response;
         if(user != null) {
-            response = HttpUtils.changePassword(user.getUsername(), user.getPassword(), newName, client);
+            response = HttpUtils.changeUsername(user.getUsername(), user.getPassword(), newName, client);
         }
         else {
-            response = HttpUtils.changePassword(null, null, newName, client);
+            response = HttpUtils.changeUsername(null, null, newName, client);
         }
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(expected == HttpStatus.SC_NO_CONTENT) {
@@ -81,7 +81,23 @@ public class AccountUtils {
             String contents = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(contents);
 
-            return new UserInfo(json.getString("username"), json.getString("userId"));
+            UserInfo info = new UserInfo(json.getString("username"), json.getString("userId"));
+
+            if(username != null) {
+                Assert.assertEquals(username, info.getUsername());
+            }
+            else {
+                Assert.assertNotNull(info.getUsername());
+            }
+
+            if(userId != null) {
+                Assert.assertEquals(userId, info.getUserId());
+            }
+            else {
+                Assert.assertEquals(15, info.getUserId().length());
+            }
+
+            return info;
         }
         else {
             return null;

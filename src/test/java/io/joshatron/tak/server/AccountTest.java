@@ -3,14 +3,16 @@ package io.joshatron.tak.server;
 import io.joshatron.tak.server.utils.AccountUtils;
 import io.joshatron.tak.server.utils.HttpUtils;
 import io.joshatron.tak.server.utils.User;
+import io.joshatron.tak.server.utils.UserInfo;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 //Suite A
-//Current final test: 018
+//Current final test: 025
 public class AccountTest {
 
     private final String suite = "A";
@@ -72,11 +74,67 @@ public class AccountTest {
     }
 
     @Test
+    public void registerUser_NonAlphanumericUsername_400() throws IOException {
+        String test = "019";
+        AccountUtils.addUser(suite, test, "01!", "password", client, HttpStatus.SC_BAD_REQUEST);
+        AccountUtils.addUser(suite, test, "01,", "password", client, HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
     public void registerUser_ColonInPassword_204() throws IOException {
         String test = "017";
         AccountUtils.addUser(suite, test, "01", ":password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.addUser(suite, test, "02", "pass:word", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.addUser(suite, test, "03", "password:", client, HttpStatus.SC_NO_CONTENT);
+    }
+
+    //Change Username
+    @Test
+    public void changeUsername_OneUser_204() throws IOException {
+        String test = "020";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.changeUsername(user, suite + test + "02", client, HttpStatus.SC_NO_CONTENT);
+    }
+
+    @Test
+    public void changeUsername_WrongPassword_401() throws IOException {
+        String test = "021";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("pass");
+        AccountUtils.changeUsername(user, suite + test + "02", client, HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void changeUsername_InvalidUser_401() throws IOException {
+        String test = "022";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setUsername(suite + test + "02");
+        AccountUtils.changeUsername(user, suite + test + "03", client, HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void changeUsername_BlankFields_400() throws IOException {
+        String test = "023";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.changeUsername(user, "", client, HttpStatus.SC_BAD_REQUEST);
+        AccountUtils.changeUsername(user, null, client, HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void changeUsername_MultipleUsers_204() throws IOException {
+        String test = "024";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "12345678", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.changeUsername(user1, suite + test + "03", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.changePassword(user2, suite + test + "04", client, HttpStatus.SC_NO_CONTENT);
+    }
+
+    @Test
+    public void changeUsername_OtherUserUsername_403() throws IOException {
+        String test = "025";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "12345678", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.changeUsername(user1, suite + test + "02", client, HttpStatus.SC_FORBIDDEN);
     }
 
     //Change Password
@@ -161,5 +219,65 @@ public class AccountTest {
         User blankPass = new User(user.getUsername(), "");
         AccountUtils.authenticate(blankName, client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.authenticate(blankPass, client, HttpStatus.SC_BAD_REQUEST);
+    }
+
+    //Search User
+    @Test
+    public void searchUser_ExistingUserFromUsername_200() throws IOException {
+        String test = "026";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);
+    }
+
+    @Test
+    public void searchUser_ExistingUserFromUserId_200() throws IOException {
+        String test = "027";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        UserInfo info = AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);
+        UserInfo info2 = AccountUtils.seachUsers(null, info.getUserId(), client, HttpStatus.SC_OK);
+        Assert.assertEquals(user.getUsername(), info2.getUsername());
+    }
+
+    @Test
+    public void searchUser_invalidUsername_404() throws IOException {
+        String test = "028";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.seachUsers(suite + test + "02", null, client, HttpStatus.SC_NOT_FOUND);
+    }
+
+    @Test
+    public void searchUser_invalidUserId_404() throws IOException {
+        String test = "029";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.seachUsers(null, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
+    }
+
+    @Test
+    public void searchUser_invalidUserIdLength_400() throws IOException {
+        String test = "030";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.seachUsers(null, "0000000", client, HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void searchUser_BlankUsername_400() throws IOException {
+        String test = "031";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.seachUsers("", null, client, HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void searchUser_bothNull_400() throws IOException {
+        String test = "032";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.seachUsers(null, null, client, HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void searchUser_bothFilled_400() throws IOException {
+        String test = "033";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        UserInfo info = AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);
+        AccountUtils.seachUsers(info.getUsername(), info.getUserId(), client, HttpStatus.SC_BAD_REQUEST);
     }
 }

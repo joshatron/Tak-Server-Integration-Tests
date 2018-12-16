@@ -104,7 +104,7 @@ public class HttpUtils {
         }
         payload += "}";
 
-        HttpPut request = new HttpPut(baseUrl + "/account/register");
+        HttpPost request = new HttpPost(baseUrl + "/account/register");
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
