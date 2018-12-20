@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.Date;
 
 public class HttpUtils {
 
@@ -252,6 +253,10 @@ public class HttpUtils {
         return client.execute(request);
     }
 
+    public static HttpResponse unfriendUser(String username, String password, String other, HttpClient client) throws IOException {
+        return null;
+    }
+
     public static HttpResponse blockUser(String username, String password, String other, HttpClient client) throws IOException {
         String payload = "{" +
                 "    \"auth\": {" +
@@ -282,6 +287,10 @@ public class HttpUtils {
         request.setEntity(entity);
 
         return client.execute(request);
+    }
+
+    public static HttpResponse checkIfBlocked(String username, String password, String other, HttpClient client) throws IOException {
+        return null;
     }
 
     public static HttpResponse getFriends(String username, String password, HttpClient client) throws IOException {
@@ -331,37 +340,15 @@ public class HttpUtils {
         return client.execute(request);
     }
 
-    public static HttpResponse recieveMessages(String username, String password, String[] senders, String start, String read, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }";
+    public static HttpResponse searchMessages(String username, String password, String senders, Date start, Date end, String read, String from, HttpClient client) throws IOException {
+        return null;
+    }
 
-        if(senders != null) {
-            payload += ",\"senders\": [";
-            for(int i = 0; i < senders.length; i++) {
-                payload += "\"" + senders[i] + "\"";
-                if(i + 1 != senders.length) {
-                    payload += ",";
-                }
-            }
-            payload += "]";
-        }
+    public static HttpResponse markRead(String username, String password, String[] ids, Date start, HttpClient client) throws IOException {
+        return null;
+    }
 
-        if(start != null) {
-            payload += ",\"start\": \"" + start + "\"";
-        }
-        if(read != null) {
-            payload += ",\"read\": \"" + read + "\"";
-        }
-
-        payload += "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/read");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
-
-        return client.execute(request);
+    public static HttpResponse getNotifications(String username, String password, HttpClient client) {
+        return null;
     }
 }
