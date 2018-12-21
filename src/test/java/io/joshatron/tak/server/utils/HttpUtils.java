@@ -2,6 +2,7 @@ package io.joshatron.tak.server.utils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -175,48 +176,30 @@ public class HttpUtils {
     }
 
     public static HttpResponse requestFriend(String username, String password, String other, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }," +
-                "    \"other\": \"" + other + "\"" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/request");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpPost request = new HttpPost(baseUrl + "/social/request/create/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse cancelFriendRequest(String username, String password, String other, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }," +
-                "    \"other\": \"" + other + "\"" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/cancel");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpDelete request = new HttpDelete(baseUrl + "/social/request/cancel/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse respondToRequest(String username, String password, String other, String response, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }," +
-                "    \"friend\": \"" + other + "\"," +
-                "    \"response\": \"" + response + "\"" +
-                "}";
+        String payload = "{\"text\": \"" + response + "\"}";
 
-        HttpPost request = new HttpPost(baseUrl + "/social/response");
+        HttpPost request = new HttpPost(baseUrl + "/social/request/respond/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
@@ -224,116 +207,84 @@ public class HttpUtils {
     }
 
     public static HttpResponse checkIncomingFriendRequests(String username, String password, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/incoming");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpGet request = new HttpGet(baseUrl + "/social/request/incoming");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse checkOutgoingFriendRequests(String username, String password, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/outgoing");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpGet request = new HttpGet(baseUrl + "/social/request/outgoing");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse unfriendUser(String username, String password, String other, HttpClient client) throws IOException {
-        return null;
+        HttpPost request = new HttpPost(baseUrl + "/social/user/unfriend/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
     }
 
     public static HttpResponse blockUser(String username, String password, String other, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }," +
-                "    \"other\": \"" + other + "\"" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/block");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpPost request = new HttpPost(baseUrl + "/social/user/block/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse unblockUser(String username, String password, String other, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }," +
-                "    \"other\": \"" + other + "\"" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/unblock");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpDelete request = new HttpDelete(baseUrl + "/social/user/unblock/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse checkIfBlocked(String username, String password, String other, HttpClient client) throws IOException {
-        return null;
+        HttpGet request = new HttpGet(baseUrl + "/social/user/blocked/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
     }
 
     public static HttpResponse getFriends(String username, String password, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/friends");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpGet request = new HttpGet(baseUrl + "/social/user/friends");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse getBlocked(String username, String password, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }" +
-                "}";
-
-        HttpPost request = new HttpPost(baseUrl + "/social/blocked");
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
+        HttpGet request = new HttpGet(baseUrl + "/social/user/blocking");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
 
         return client.execute(request);
     }
 
     public static HttpResponse sendMessage(String username, String password, String recipient, String message, HttpClient client) throws IOException {
-        String payload = "{" +
-                "    \"auth\": {" +
-                "        \"username\": \"" + username + "\"," +
-                "        \"password\": \"" + password + "\"" +
-                "    }," +
-                "    \"recipient\": \"" + recipient + "\"," +
-                "    \"message\": \"" + message + "\"" +
-                "}";
+        String payload = "{\"text\": \"" + message + "\"}";
 
-        HttpPost request = new HttpPost(baseUrl + "/social/send");
+        HttpPost request = new HttpPost(baseUrl + "/social/message/send/" + recipient);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
@@ -341,14 +292,102 @@ public class HttpUtils {
     }
 
     public static HttpResponse searchMessages(String username, String password, String senders, Date start, Date end, String read, String from, HttpClient client) throws IOException {
-        return null;
+        boolean first = true;
+        StringBuilder params = new StringBuilder("?");
+
+        if(senders != null) {
+            params.append("senders=");
+            params.append(senders);
+            first = false;
+        }
+        if(start != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("start=");
+            params.append(start.getTime());
+            first = false;
+        }
+        if(end != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("end=");
+            params.append(end.getTime());
+            first = false;
+        }
+        if(read != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("read=");
+            params.append(read);
+            first = false;
+        }
+        if(from != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("from=");
+            params.append(from);
+            first = false;
+        }
+
+        HttpGet request;
+        if(!first) {
+            request = new HttpGet(baseUrl + "/social/message/search" + params);
+        }
+        else {
+            request = new HttpGet(baseUrl + "/social/message/search");
+        }
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
     }
 
     public static HttpResponse markRead(String username, String password, String[] ids, Date start, HttpClient client) throws IOException {
-        return null;
+        StringBuilder payload = new StringBuilder("{");
+        if(ids != null) {
+            payload.append("\"ids\": [");
+            boolean first = true;
+            for(String id : ids) {
+                if(!first) {
+                    payload.append(",");
+                }
+                payload.append("\"");
+                payload.append(id);
+                payload.append("\"");
+                first = false;
+            }
+            payload.append("]");
+            if(start != null) {
+                payload.append(",");
+            }
+        }
+        if(start != null) {
+            payload.append("\"start\": ");
+            payload.append(start.getTime());
+        }
+        payload.append("}");
+
+        HttpPost request = new HttpPost(baseUrl + "/social/message/markread");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload.toString(), ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
     }
 
-    public static HttpResponse getNotifications(String username, String password, HttpClient client) {
-        return null;
+    public static HttpResponse getNotifications(String username, String password, HttpClient client) throws IOException {
+        HttpGet request = new HttpGet(baseUrl + "/social/notifications");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
     }
 }
