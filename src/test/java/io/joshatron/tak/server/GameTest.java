@@ -1,13 +1,14 @@
 package io.joshatron.tak.server;
 
 import io.joshatron.tak.server.utils.HttpUtils;
+import io.joshatron.tak.server.utils.RandomUtils;
 import org.apache.http.client.HttpClient;
 import org.junit.Test;
 
 //Current final test: 077
 public class GameTest {
 
-    private final String suite = "C";
+    private final String suite = RandomUtils.generateSuite(10);
     private HttpClient client;
 
     public GameTest() {

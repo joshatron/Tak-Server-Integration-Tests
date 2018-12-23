@@ -1,9 +1,6 @@
 package io.joshatron.tak.server;
 
-import io.joshatron.tak.server.utils.AccountUtils;
-import io.joshatron.tak.server.utils.HttpUtils;
-import io.joshatron.tak.server.utils.SocialUtils;
-import io.joshatron.tak.server.utils.User;
+import io.joshatron.tak.server.utils.*;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.junit.Test;
@@ -13,7 +10,7 @@ import java.io.IOException;
 //Current final test: 089
 public class SocialTest {
 
-    private final String suite = "B";
+    private final String suite = RandomUtils.generateSuite(10);
     private HttpClient client;
 
     public SocialTest() {
@@ -341,7 +338,7 @@ public class SocialTest {
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
@@ -352,7 +349,7 @@ public class SocialTest {
         SocialUtils.requestFriend(user2, user1, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.respondToRequest(user1, user2, "accept", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
         SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
@@ -363,7 +360,7 @@ public class SocialTest {
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user2, user1, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
         SocialUtils.checkIncoming(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
@@ -374,7 +371,7 @@ public class SocialTest {
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
         SocialUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
@@ -384,9 +381,9 @@ public class SocialTest {
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user2, user1, client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.checkBlocked(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
+        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_FORBIDDEN);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
@@ -406,7 +403,7 @@ public class SocialTest {
         user1.setPassword("drowssap");
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_FORBIDDEN);
         user1.setPassword("password");
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
@@ -415,7 +412,7 @@ public class SocialTest {
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = new User(suite + test + "02", "password");
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_FORBIDDEN);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
@@ -424,9 +421,9 @@ public class SocialTest {
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_FORBIDDEN);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
@@ -434,7 +431,7 @@ public class SocialTest {
         String test = "038";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user1, client, HttpStatus.SC_FORBIDDEN);
-        SocialUtils.checkBlocked(user1, client, HttpStatus.SC_OK, null, new User[]{user1});
+        SocialUtils.checkIfBlocked(user1, user1, client, HttpStatus.SC_NO_CONTENT);
     }
 
     //Unblock User

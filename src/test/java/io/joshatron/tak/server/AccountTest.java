@@ -1,9 +1,6 @@
 package io.joshatron.tak.server;
 
-import io.joshatron.tak.server.utils.AccountUtils;
-import io.joshatron.tak.server.utils.HttpUtils;
-import io.joshatron.tak.server.utils.User;
-import io.joshatron.tak.server.utils.UserInfo;
+import io.joshatron.tak.server.utils.*;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.junit.Assert;
@@ -11,11 +8,10 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-//Suite A
 //Current final test: 025
 public class AccountTest {
 
-    private final String suite = "A";
+    private final String suite = RandomUtils.generateSuite(10);
     private HttpClient client;
 
     public AccountTest() {
