@@ -21,7 +21,8 @@ public class AccountUtils {
         }
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(expected == HttpStatus.SC_NO_CONTENT) {
-            User u = new User(suite + test + user, password);
+            UserInfo info = seachUsers(suite + test + user, null, client, HttpStatus.SC_OK);
+            User u = new User(suite + test + user, password, info.getUserId());
             authenticate(u, client, HttpStatus.SC_NO_CONTENT);
 
             return u;

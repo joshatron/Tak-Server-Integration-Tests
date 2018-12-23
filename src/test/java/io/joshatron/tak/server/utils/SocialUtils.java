@@ -13,17 +13,17 @@ import java.util.Date;
 public class SocialUtils {
 
     public static void requestFriend(User requester, User other, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.requestFriend(requester.getUsername(), requester.getPassword(), other.getUsername(), client);
+        HttpResponse response = HttpUtils.requestFriend(requester.getUsername(), requester.getPassword(), other.getUserId(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
     public static void cancelRequest(User requester, User other, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.cancelFriendRequest(requester.getUsername(), requester.getPassword(), other.getUsername(), client);
+        HttpResponse response = HttpUtils.cancelFriendRequest(requester.getUsername(), requester.getPassword(), other.getUserId(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
     public static void respondToRequest(User user, User other, String answer, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.respondToRequest(user.getUsername(), user.getPassword(), other.getUsername(), answer, client);
+        HttpResponse response = HttpUtils.respondToRequest(user.getUsername(), user.getPassword(), other.getUserId(), answer, client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
@@ -66,22 +66,22 @@ public class SocialUtils {
     }
 
     public static void unfriendUser(User requester, User other, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.unfriendUser(requester.getUsername(), requester.getPassword(), other.getUsername(), client);
+        HttpResponse response = HttpUtils.unfriendUser(requester.getUsername(), requester.getPassword(), other.getUserId(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
     public static void blockUser(User requester, User other, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.blockUser(requester.getUsername(), requester.getPassword(), other.getUsername(), client);
+        HttpResponse response = HttpUtils.blockUser(requester.getUsername(), requester.getPassword(), other.getUserId(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
     public static void unblockUser(User requester, User other, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.unblockUser(requester.getUsername(), requester.getPassword(), other.getUsername(), client);
+        HttpResponse response = HttpUtils.unblockUser(requester.getUsername(), requester.getPassword(), other.getUserId(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
     public static void checkIfBlocked(User requester, User other, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.checkIfBlocked(requester.getUsername(), requester.getPassword(), other.getUsername(), client);
+        HttpResponse response = HttpUtils.checkIfBlocked(requester.getUsername(), requester.getPassword(), other.getUserId(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
@@ -124,7 +124,7 @@ public class SocialUtils {
     }
 
     public static void sendMessage(User sender, User reciever, String message, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.sendMessage(sender.getUsername(), sender.getPassword(), reciever.getUsername(), message, client);
+        HttpResponse response = HttpUtils.sendMessage(sender.getUsername(), sender.getPassword(), reciever.getUserId(), message, client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 

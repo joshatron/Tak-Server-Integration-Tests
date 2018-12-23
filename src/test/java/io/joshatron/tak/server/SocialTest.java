@@ -7,14 +7,17 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+//Suite: B
 //Current final test: 089
 public class SocialTest {
 
-    private final String suite = RandomUtils.generateSuite(10);
+    private String suite;
     private HttpClient client;
 
     public SocialTest() {
         client = HttpUtils.createHttpClient();
+        suite = "B" + RandomUtils.generateSuite(10);
+        System.out.println("Suite: " + suite);
     }
 
     //Create Friend Request
@@ -32,8 +35,8 @@ public class SocialTest {
         String test = "002";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user3 = new User(suite + test + "03", "password");
-        SocialUtils.requestFriend(user3, user2, client, HttpStatus.SC_FORBIDDEN);
+        User user3 = new User(suite + test + "03", "password", "000000000000000");
+        SocialUtils.requestFriend(user3, user2, client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user3});
     }
 
@@ -92,7 +95,7 @@ public class SocialTest {
     public void friendRequest_RequestInvalidUser_403() throws IOException {
         String test = "088";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user2 = new User(suite + test + "02", "password");
+        User user2 = new User(suite + test + "02", "password", "000000000000000");
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_FORBIDDEN);
         SocialUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
@@ -114,10 +117,10 @@ public class SocialTest {
         String test = "009";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user3 = new User(suite + test + "03", "password");
+        User user3 = new User(suite + test + "03", "password", "000000000000000");
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
-        SocialUtils.cancelRequest(user3, user2, client, HttpStatus.SC_FORBIDDEN);
+        SocialUtils.cancelRequest(user3, user2, client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
@@ -126,7 +129,7 @@ public class SocialTest {
         String test = "089";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user3 = new User(suite + test + "03", "password");
+        User user3 = new User(suite + test + "03", "password", "000000000000000");
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
         SocialUtils.cancelRequest(user1, user3, client, HttpStatus.SC_FORBIDDEN);
@@ -150,7 +153,7 @@ public class SocialTest {
         String test = "011";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.cancelRequest(user1, user2, client, HttpStatus.SC_FORBIDDEN);
+        SocialUtils.cancelRequest(user1, user2, client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
@@ -196,10 +199,10 @@ public class SocialTest {
         String test = "014";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user3 = new User(suite + test + "03", "password");
+        User user3 = new User(suite + test + "03", "password", "000000000000000");
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
-        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_FORBIDDEN);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkFriends(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
@@ -223,7 +226,7 @@ public class SocialTest {
         String test = "016";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_FORBIDDEN);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkFriends(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
@@ -267,8 +270,8 @@ public class SocialTest {
     @Test
     public void checkIncomingRequest_InvalidUser_403() throws IOException {
         String test = "021";
-        User user1 = new User(suite + test + "01", "password");
-        SocialUtils.checkIncoming(user1, client, HttpStatus.SC_FORBIDDEN, null, null);
+        User user1 = new User(suite + test + "01", "password", "000000000000000");
+        SocialUtils.checkIncoming(user1, client, HttpStatus.SC_NOT_FOUND, null, null);
     }
 
     @Test
@@ -319,7 +322,7 @@ public class SocialTest {
     @Test
     public void checkOutgoingRequest_InvalidUser_403() throws IOException {
         String test = "027";
-        User user = new User(suite + test + "01", "password");
+        User user = new User(suite + test + "01", "password", "000000000000000");
         SocialUtils.checkOutgoing(user, client, HttpStatus.SC_FORBIDDEN, null, null);
     }
 
@@ -391,7 +394,7 @@ public class SocialTest {
         String test = "034";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user3 = new User(suite + test + "03", "password");
+        User user3 = new User(suite + test + "03", "password", "000000000000000");
         SocialUtils.blockUser(user3, user2, client, HttpStatus.SC_FORBIDDEN);
     }
 
@@ -401,7 +404,7 @@ public class SocialTest {
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         user1.setPassword("drowssap");
-        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_FORBIDDEN);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_UNAUTHORIZED);
         user1.setPassword("password");
         SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
     }
@@ -410,7 +413,7 @@ public class SocialTest {
     public void blockUser_BlockingInvalidUser_403() throws IOException {
         String test = "036";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user2 = new User(suite + test + "02", "password");
+        User user2 = new User(suite + test + "02", "password", "000000000000000");
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_FORBIDDEN);
         SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_NO_CONTENT);
     }

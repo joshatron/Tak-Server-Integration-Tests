@@ -5,14 +5,17 @@ import io.joshatron.tak.server.utils.RandomUtils;
 import org.apache.http.client.HttpClient;
 import org.junit.Test;
 
+//Suite: C
 //Current final test: 077
 public class GameTest {
 
-    private final String suite = RandomUtils.generateSuite(10);
+    private String suite;
     private HttpClient client;
 
     public GameTest() {
         client = HttpUtils.createHttpClient();
+        suite = "C" + RandomUtils.generateSuite(10);
+        System.out.println("Suite: " + suite);
     }
 
     //Request a Game

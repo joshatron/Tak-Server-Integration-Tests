@@ -8,14 +8,17 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+//Suite: A
 //Current final test: 025
 public class AccountTest {
 
-    private final String suite = RandomUtils.generateSuite(10);
+    private String suite;
     private HttpClient client;
 
     public AccountTest() {
         client = HttpUtils.createHttpClient();
+        suite = "A" + RandomUtils.generateSuite(10);
+        System.out.println("Suite: " + suite);
     }
 
     //Register User
@@ -211,8 +214,8 @@ public class AccountTest {
     public void authenticate_BlankFields_400() throws IOException {
         String test = "015";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        User blankName = new User("", "password");
-        User blankPass = new User(user.getUsername(), "");
+        User blankName = new User("", "password", "000000000000000");
+        User blankPass = new User(user.getUsername(), "", "000000000000000");
         AccountUtils.authenticate(blankName, client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.authenticate(blankPass, client, HttpStatus.SC_BAD_REQUEST);
     }
