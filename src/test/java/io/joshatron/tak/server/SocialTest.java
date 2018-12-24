@@ -385,10 +385,8 @@ public class SocialTest {
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user2, user1, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
-        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_FORBIDDEN);
-        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
@@ -417,7 +415,7 @@ public class SocialTest {
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = new User(suite + test + "02", "password", "000000000000000");
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NOT_FOUND);
-        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test
