@@ -64,11 +64,13 @@ public class GameTest {
         String test = "009";
     }
 
-    //Test 010
     @Test
     public void requestGame_InvalidCredentials_403RequestNotMade() {
         String test = "010";
     }
+
+    //Cancel a Game Request
+    //TODO: implement
 
     //Respond to Game Request
     @Test
@@ -229,116 +231,97 @@ public class GameTest {
         String test = "041";
     }
 
-    //List Complete Games
+    //Cancel a Random Game Request
+    //TODO: implement
+
+    //Check Random Game Request
+    //TODO: implement
+
+    //List Games
+    //TODO: review
     @Test
-    public void listCompletedGames_NoGames_200EmptyArray() {
+    public void listGames_NoGames_200EmptyArray() {
         String test = "042";
     }
 
     @Test
-    public void listCompletedGames_OneGame_200ArrayWithOne() {
+    public void listGames_OneGame_200ArrayWithOne() {
         String test = "043";
     }
 
     @Test
-    public void listCompletedGames_MultipleGames_200ArrayWithMultiple() {
+    public void listGames_MultipleGames_200ArrayWithMultiple() {
         String test = "044";
     }
 
     @Test
-    public void listCompletedGames_GameInProgress_200EmptyArray() {
+    public void listGames_GameInProgress_200EmptyArray() {
         String test = "045";
     }
 
     @Test
-    public void listCompletedGames_OneOpponent_200GamesFromOpponent() {
+    public void listGames_OneOpponent_200GamesFromOpponent() {
         String test = "046";
     }
 
     @Test
-    public void listCompletedGames_MultipleOpponents_200GamesFromMultipleOpponents() {
+    public void listGames_MultipleOpponents_200GamesFromMultipleOpponents() {
         String test = "047";
     }
 
     @Test
-    public void listCompletedGames_StartInPast_200GamesFromPastOn() {
+    public void listGames_StartInPast_200GamesFromPastOn() {
         String test = "048";
     }
 
     @Test
-    public void listCompletedGames_StartInCurrent_200EmptyGames() {
+    public void listGames_StartInCurrent_200EmptyGames() {
         String test = "049";
     }
 
     @Test
-    public void listCompletedGames_StartInFuture_403() {
+    public void listGames_StartInFuture_403() {
         String test = "050";
     }
 
     @Test
-    public void listCompletedGames_OneSize_200GamesWithSize() {
+    public void listGames_OneSize_200GamesWithSize() {
         String test = "051";
     }
 
     @Test
-    public void listCompletedGames_SizeBadNumber_403() {
+    public void listGames_SizeBadNumber_403() {
         String test = "052";
     }
 
     @Test
-    public void listCompletedGames_InvalidUser_403() {
+    public void listGames_InvalidUser_403() {
         String test = "053";
     }
 
     @Test
-    public void listCompletedGames_InvalidCredentials_403() {
+    public void listGames_InvalidCredentials_403() {
         String test = "054";
     }
 
-    //List Incomplete Games
     @Test
-    public void listIncompleteGames_NoGames_200EmptyArray() {
-        String test = "055";
-    }
-
-    @Test
-    public void listIncompleteGames_OneGame_200ArrayWithOne() {
-        String test = "056";
-    }
-
-    @Test
-    public void listIncompleteGames_MultipleGames_200ArrayWithMultiple() {
-        String test = "057";
-    }
-
-    @Test
-    public void listIncompleteGames_CompleteGame_200EmptyArray() {
+    public void listGames_CompleteGame_200EmptyArray() {
         String test = "058";
     }
 
     @Test
-    public void listIncompleteGames_Pending_200OnlyPending() {
+    public void listGames_Pending_200OnlyPending() {
         String test = "059";
     }
 
     @Test
-    public void listIncompleteGames_NotPending_200OnlyNotPending() {
+    public void listGames_NotPending_200OnlyNotPending() {
         String test = "060";
     }
 
     @Test
-    public void listIncompleteGames_InvalidPending_403() {
+    public void listGames_InvalidPending_403() {
         String test = "061";
-    }
-
-    @Test
-    public void listIncompleteGames_InvalidUser_403() {
-        String test = "062";
-    }
-
-    @Test
-    public void listIncompleteGames_InvalidCredentials_403() {
-        String test = "063";
     }
 
     //Get Info on a Game
@@ -366,6 +349,9 @@ public class GameTest {
     public void getGame_InvalidCredentials_403() {
         String test = "068";
     }
+
+    //Get Possible Next Turns For Game
+    //TODO: implement
 
     //Play Turn
     @Test
@@ -412,4 +398,7 @@ public class GameTest {
     public void playTurn_InvalidCredentials_403TurnNotMade() {
         String test = "077";
     }
+
+    //Get Notifications
+    //TODO: implement
 }

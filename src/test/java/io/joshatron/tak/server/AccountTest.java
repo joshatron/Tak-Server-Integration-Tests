@@ -23,13 +23,13 @@ public class AccountTest {
 
     //Register User
     @Test
-    public void registerUser_OneUser_204() throws IOException {
+    public void registerUser_OneUser_204UserCreated() throws IOException {
         String test = "001";
         AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void registerUser_MultipleUsers_204() throws IOException {
+    public void registerUser_MultipleUsers_204UsersCreated() throws IOException {
         String test = "002";
         AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -37,7 +37,7 @@ public class AccountTest {
     }
 
     @Test
-    public void registerUser_UserAlreadyCreated_403() throws IOException {
+    public void registerUser_UserAlreadyCreated_403OnlyOneUserCreated() throws IOException {
         String test = "003";
         AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_FORBIDDEN);
@@ -45,42 +45,42 @@ public class AccountTest {
     }
 
     @Test
-    public void registerUser_TryToRegisterWithDifferentCase_403() throws IOException {
+    public void registerUser_TryToRegisterWithDifferentCase_403OnlyOneUserCreated() throws IOException {
         String test = "013";
         AccountUtils.addUser(suite, test, "aa", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.addUser(suite, test, "AA", "password", client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
-    public void registerUser_BlankUsername_400() throws IOException {
+    public void registerUser_BlankUsername_400UserNotCreated() throws IOException {
         String test = "014";
         AccountUtils.addUser("", "", "", "password", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(null, null, null, "password", client, HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
-    public void registerUser_BlankPassword_400() throws IOException {
+    public void registerUser_BlankPassword_400UserNotCreated() throws IOException {
         String test = "018";
         AccountUtils.addUser(suite, test, "01", "", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(suite, test, "02", null, client, HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
-    public void registerUser_ColonInUsername_400() throws IOException {
+    public void registerUser_ColonInUsername_400UserNotCreated() throws IOException {
         String test = "016";
         AccountUtils.addUser(suite, test, ":01", "password", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(suite, test, "01:", "password", client, HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
-    public void registerUser_NonAlphanumericUsername_400() throws IOException {
+    public void registerUser_NonAlphanumericUsername_400UserNotCreated() throws IOException {
         String test = "019";
         AccountUtils.addUser(suite, test, "01!", "password", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(suite, test, "01,", "password", client, HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
-    public void registerUser_ColonInPassword_204() throws IOException {
+    public void registerUser_ColonInPassword_204UsersCreated() throws IOException {
         String test = "017";
         AccountUtils.addUser(suite, test, "01", ":password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.addUser(suite, test, "02", "pass:word", client, HttpStatus.SC_NO_CONTENT);
@@ -89,14 +89,14 @@ public class AccountTest {
 
     //Change Username
     @Test
-    public void changeUsername_OneUser_204() throws IOException {
+    public void changeUsername_OneUser_204UsernameChanged() throws IOException {
         String test = "020";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.changeUsername(user, suite + test + "02", client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void changeUsername_WrongPassword_401() throws IOException {
+    public void changeUsername_WrongPassword_401UsernameNotChanged() throws IOException {
         String test = "021";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("pass");
@@ -104,7 +104,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changeUsername_InvalidUser_401() throws IOException {
+    public void changeUsername_InvalidUser_401UsernameNotChanged() throws IOException {
         String test = "022";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setUsername(suite + test + "02");
@@ -112,7 +112,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changeUsername_BlankFields_400() throws IOException {
+    public void changeUsername_BlankFields_400UsernameNotChanged() throws IOException {
         String test = "023";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.changeUsername(user, "", client, HttpStatus.SC_BAD_REQUEST);
@@ -120,7 +120,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changeUsername_MultipleUsers_204() throws IOException {
+    public void changeUsername_MultipleUsers_204UsernamesChanged() throws IOException {
         String test = "024";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "12345678", client, HttpStatus.SC_NO_CONTENT);
@@ -129,7 +129,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changeUsername_OtherUserUsername_403() throws IOException {
+    public void changeUsername_OtherUserUsername_403UsernameNotChanged() throws IOException {
         String test = "025";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "12345678", client, HttpStatus.SC_NO_CONTENT);
@@ -138,14 +138,14 @@ public class AccountTest {
 
     //Change Password
     @Test
-    public void changePassword_OneUser_204() throws IOException {
+    public void changePassword_OneUser_204PasswordChanged() throws IOException {
         String test = "004";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.changePassword(user, "drowssap", client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void changePassword_WrongPassword_401() throws IOException {
+    public void changePassword_WrongPassword_401PasswordNotChanged() throws IOException {
         String test = "005";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("pass");
@@ -153,7 +153,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changePassword_InvalidUser_401() throws IOException {
+    public void changePassword_InvalidUser_401PasswordNotChanged() throws IOException {
         String test = "006";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setUsername(suite + test + "02");
@@ -161,7 +161,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changePassword_BlankFields_400() throws IOException {
+    public void changePassword_BlankFields_400PasswordNotChanged() throws IOException {
         String test = "007";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.changePassword(user, "", client, HttpStatus.SC_BAD_REQUEST);
@@ -169,7 +169,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changePassword_MultipleUsers_204() throws IOException {
+    public void changePassword_MultipleUsers_204PasswordsChanged() throws IOException {
         String test = "008";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "12345678", client, HttpStatus.SC_NO_CONTENT);
@@ -178,7 +178,7 @@ public class AccountTest {
     }
 
     @Test
-    public void changePassword_OtherUserPassword_401() throws IOException {
+    public void changePassword_OtherUserPassword_401PasswordsNotChanged() throws IOException {
         String test = "009";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "12345678", client, HttpStatus.SC_NO_CONTENT);
@@ -222,14 +222,15 @@ public class AccountTest {
 
     //Search User
     @Test
-    public void searchUser_ExistingUserFromUsername_200() throws IOException {
+    public void searchUser_ExistingUserFromUsername_200ExpectedUser() throws IOException {
         String test = "026";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);
+        UserInfo info = AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);
+        Assert.assertEquals(user.getUsername(), info.getUsername());
     }
 
     @Test
-    public void searchUser_ExistingUserFromUserId_200() throws IOException {
+    public void searchUser_ExistingUserFromUserId_200ExpectedUser() throws IOException {
         String test = "027";
         User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         UserInfo info = AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);

@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 //Suite: B
-//Current final test: 089
+//Current final test: 096
 public class SocialTest {
 
     private String suite;
@@ -334,6 +334,9 @@ public class SocialTest {
         SocialUtils.checkOutgoing(user, client, HttpStatus.SC_UNAUTHORIZED, null, null);
     }
 
+    //Unfriend User
+    //TODO: implement
+
     //Block User
     @Test
     public void blockUser_BlockNonFriend_204BlockAdded() throws IOException {
@@ -467,6 +470,9 @@ public class SocialTest {
         String test = "044";
     }
 
+    //Check If Blocked
+    //TODO: implement
+
     //List Friends
     @Test
     public void listFriends_NoFriends_200EmptyArray() {
@@ -513,34 +519,34 @@ public class SocialTest {
         String test = "053";
     }
 
-    //List Blocked Users
+    //List Blocking Users
     @Test
-    public void listBlocked_NoBlocked_200EmptyArray() {
+    public void listBlocking_NoBlocked_200EmptyArray() {
         String test = "054";
     }
 
     @Test
-    public void listBlocked_OneBlocked_200ArrayWithOne() {
+    public void listBlocking_OneBlocked_200ArrayWithOne() {
         String test = "055";
     }
 
     @Test
-    public void listBlocked_MultipleBlocked_200ArrayWithMultiple() {
+    public void listBlocking_MultipleBlocked_200ArrayWithMultiple() {
         String test = "056";
     }
 
     @Test
-    public void listBlocked_BeenBlocked_200EmptyArray() {
+    public void listBlocking_BeenBlocked_200EmptyArray() {
         String test = "057";
     }
 
     @Test
-    public void listBlocked_InvalidUser_403() {
+    public void listBlocking_InvalidUser_403() {
         String test = "058";
     }
 
     @Test
-    public void listBlocked_InvalidCredentials_403() {
+    public void listBlocking_InvalidCredentials_403() {
         String test = "059";
     }
 
@@ -591,6 +597,7 @@ public class SocialTest {
     }
 
     //Read Messages
+    //TODO: review
     @Test
     public void readMessages_NoParameters_200AllMessages() {
         String test = "069";
@@ -679,5 +686,44 @@ public class SocialTest {
     @Test
     public void readMessages_SendersAndStartAndRead_200MessagesFittingQuery() {
         String test = "086";
+    }
+
+    //Mark Messages Read
+    //TODO: implement
+
+    //Get Notifications
+    @Test
+    public void getNotifications_NoRequests_200RequestsFieldZero() {
+        String test = "090";
+    }
+
+    @Test
+    public void getNotifications_NonZeroRequests_200RequestsFieldMoreThanZero() {
+        String test = "091";
+    }
+
+    @Test
+    public void getNotifications_NoMessages_200MessagesFieldMoreThanZero() {
+        String test = "092";
+    }
+
+    @Test
+    public void getNotifications_NonZeroMessages_200MessagesFieldMoreThanZero() {
+        String test = "093";
+    }
+
+    @Test
+    public void getNotifications_NonZeroMessagesSomeRead_200MessagesFieldNonZeroNotIncludingRead() {
+        String test = "094";
+    }
+
+    @Test
+    public void getNotifications_InvalidUser_401() {
+        String test = "095";
+    }
+
+    @Test
+    public void getNotifications_InvalidPassword_401() {
+        String test = "096";
     }
 }
