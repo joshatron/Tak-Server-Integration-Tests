@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 //Suite: B
-//Current final test: 096
+//Current final test: 120
 public class SocialTest {
 
     private String suite;
@@ -335,7 +335,40 @@ public class SocialTest {
     }
 
     //Unfriend User
-    //TODO: implement
+    @Test
+    public void unfriendUser_UnfriendFriend_204NoLongerFriends() throws IOException {
+        String test = "097";
+    }
+
+    @Test
+    public void unfriendUser_UnfriendNonfriend_404() throws IOException {
+        String test = "098";
+    }
+
+    @Test
+    public void unfriendUser_UnfriendBlocked_403() throws IOException {
+        String test = "099";
+    }
+
+    @Test
+    public void unfriendUser_UnfriendWithRequest_404() throws IOException {
+        String test = "100";
+    }
+
+    @Test
+    public void unfriendUser_UnfriendInvalidUser_404() throws IOException {
+        String test = "101";
+    }
+
+    @Test
+    public void unfriendUser_InvalidUser_401() throws IOException {
+        String test = "102";
+    }
+
+    @Test
+    public void unfriendUser_InvalidPassword_401() throws IOException {
+        String test = "103";
+    }
 
     //Block User
     @Test
@@ -471,7 +504,30 @@ public class SocialTest {
     }
 
     //Check If Blocked
-    //TODO: implement
+    @Test
+    public void checkIfBlocked_UserBlocked_403() {
+        String test = "104";
+    }
+
+    @Test
+    public void checkIfBlocked_UserNotBlocked_204() {
+        String test = "105";
+    }
+
+    @Test
+    public void checkIfBlocked_UserBlocking_204() {
+        String test = "106";
+    }
+
+    @Test
+    public void checkIfBlocked_InvalidUser_401() {
+        String test = "107";
+    }
+
+    @Test
+    public void checkIfBlocked_InvalidPassword_401() {
+        String test = "108";
+    }
 
     //List Friends
     @Test
@@ -689,7 +745,65 @@ public class SocialTest {
     }
 
     //Mark Messages Read
-    //TODO: implement
+    @Test
+    public void markRead_NoParameters_204AllMessagesRead() {
+        String test = "109";
+    }
+
+    @Test
+    public void markRead_Ids_204SpecifiedMessagesRead() {
+        String test = "110";
+    }
+
+    @Test
+    public void markRead_StartTime_204SpecifiedMessagesRead() {
+        String test = "111";
+    }
+
+    @Test
+    public void markRead_IdsAndStartTime_204SpecifiedMessagesRead() {
+        String test = "112";
+    }
+
+    @Test
+    public void markRead_InvalidIds_404() {
+        String test = "113";
+    }
+
+    @Test
+    public void markRead_InvalidAndValidIds_404AllValidMarked() {
+        String test = "114";
+    }
+
+    @Test
+    public void markRead_InvalidAndValidTime_404AllValidMarked() {
+        String test = "115";
+    }
+
+    @Test
+    public void markRead_StartTimeAfterNow_404() {
+        String test = "116";
+    }
+
+    @Test
+    public void markRead_IdNotYourMessage_403() {
+        String test = "117";
+    }
+
+    @Test
+    public void markRead_IdYouAreSender_403() {
+        String test = "118";
+    }
+
+    @Test
+    public void markRead_InvalidUser_401() {
+        String test = "119";
+    }
+
+    @Test
+    public void markRead_InvalidPassword_401() {
+        String test = "120";
+    }
 
     //Get Notifications
     @Test
