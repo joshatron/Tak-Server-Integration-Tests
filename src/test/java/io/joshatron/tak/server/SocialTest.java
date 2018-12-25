@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 //Suite: B
-//Current final test: 120
+//Current final test: 130
 public class SocialTest {
 
     private String suite;
@@ -653,12 +653,15 @@ public class SocialTest {
     }
 
     //Read Messages
-    //TODO: review
     @Test
     public void readMessages_NoParameters_200AllMessages() {
         String test = "069";
     }
 
+    @Test
+    public void readMessages_AllParameters_200FilteredMessages() {
+        String test = "130";
+    }
     @Test
     public void readMessages_InvalidUser_403() {
         String test = "070";
@@ -695,6 +698,26 @@ public class SocialTest {
     }
 
     @Test
+    public void readMessages_EndTimeNormal_200MessagesBeforeEnd() {
+        String test = "121";
+    }
+
+    @Test
+    public void readMessages_EndTimeBeforeAll_200NoMessages() {
+        String test = "122";
+    }
+
+    @Test
+    public void readMessages_StartAndEnd_200MessagesBetweenStartAndEnd() {
+        String test = "123";
+    }
+
+    @Test
+    public void readMessages_StartAfterEnd_400() {
+        String test = "124";
+    }
+
+    @Test
     public void readMessages_OnlyUnread_200OnlyUnreadMessages() {
         String test = "077";
     }
@@ -705,18 +728,28 @@ public class SocialTest {
     }
 
     @Test
-    public void readMessages_ReadBadFormat_403() {
+    public void readMessages_ReadBadFormat_400() {
         String test = "079";
     }
 
     @Test
-    public void readMessages_StartBadFormat_403() {
+    public void readMessages_StartBadFormat_400() {
         String test = "080";
     }
 
     @Test
-    public void readMessages_InvalidSender_403() {
+    public void readMessages_EndBadFormat_400() {
+        String test = "125";
+    }
+
+    @Test
+    public void readMessages_InvalidSender_404() {
         String test = "081";
+    }
+
+    @Test
+    public void readMessages_InvalidAndValidSender_404MessagesFromValidSenders() {
+        String test = "126";
     }
 
     @Test
@@ -725,23 +758,18 @@ public class SocialTest {
     }
 
     @Test
-    public void readMessages_SenderAndStart_200MessagesFromSendersFromStart() {
-        String test = "083";
+    public void readMessages_FromMe_200MessagesYouSentOnly() {
+        String test = "127";
     }
 
     @Test
-    public void readMessages_SenderAndRead_200MessagesFromSendersThatAreRead() {
-        String test = "084";
+    public void readMessages_FromOther_200MessagesYouRecievedOnly() {
+        String test = "128";
     }
 
     @Test
-    public void readMessages_StartAndRead_200MessagesStartingAtStartThatAreRead() {
-        String test = "085";
-    }
-
-    @Test
-    public void readMessages_SendersAndStartAndRead_200MessagesFittingQuery() {
-        String test = "086";
+    public void readMessages_InvalidFrom_400() {
+        String test = "129";
     }
 
     //Mark Messages Read
