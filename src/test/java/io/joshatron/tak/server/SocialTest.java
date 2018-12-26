@@ -622,77 +622,139 @@ public class SocialTest {
     @Test
     public void listFriends_NoFriends_200EmptyArray() throws IOException {
         String test = "045";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user, client, HttpStatus.SC_OK, null, null);
     }
 
     @Test
     public void listFriends_OneFriend_200ArrayWithOne() throws IOException {
         String test = "046";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
     @Test
     public void listFriends_MultipleFriends_200ArrayWithMultiple() throws IOException {
         String test = "047";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2, user3}, null);
     }
 
     @Test
     public void listFriends_CreatedByYou_200ArrayWithOne() throws IOException {
         String test = "048";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
     @Test
     public void listFriends_CreatedByOther_200ArrayWithOne() throws IOException {
         String test = "049";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user1, user2, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
     @Test
     public void listFriends_IncomingRequest_200EmptyArray() throws IOException {
         String test = "050";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
     @Test
     public void listFriends_OutgoingRequest_200EmptyArray() throws IOException {
         String test = "051";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
     @Test
-    public void listFriends_InvalidUser_403() throws IOException {
+    public void listFriends_InvalidUser_401() throws IOException {
         String test = "052";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(suite + test + "02", "password");
+        SocialUtils.checkFriends(user2, client, HttpStatus.SC_UNAUTHORIZED, null, null);
+
     }
 
     @Test
-    public void listFriends_InvalidCredentials_403() throws IOException {
+    public void listFriends_InvalidCredentials_401() throws IOException {
         String test = "053";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        SocialUtils.checkFriends(user, client, HttpStatus.SC_UNAUTHORIZED, null, null);
     }
 
     //List Blocking Users
     @Test
     public void listBlocking_NoBlocked_200EmptyArray() throws IOException {
         String test = "054";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkBlocking(user, client, HttpStatus.SC_OK, null, null);
     }
 
     @Test
     public void listBlocking_OneBlocked_200ArrayWithOne() throws IOException {
         String test = "055";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkBlocking(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
     @Test
     public void listBlocking_MultipleBlocked_200ArrayWithMultiple() throws IOException {
         String test = "056";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkBlocking(user1, client, HttpStatus.SC_OK, new User[]{user2, user3}, null);
     }
 
     @Test
     public void listBlocking_BeenBlocked_200EmptyArray() throws IOException {
         String test = "057";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkBlocking(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     @Test
-    public void listBlocking_InvalidUser_403() throws IOException {
+    public void listBlocking_InvalidUser_401() throws IOException {
         String test = "058";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(suite + test + "02", "password");
+        SocialUtils.checkBlocking(user2, client, HttpStatus.SC_UNAUTHORIZED, null, null);
     }
 
     @Test
-    public void listBlocking_InvalidCredentials_403() throws IOException {
+    public void listBlocking_InvalidCredentials_401() throws IOException {
         String test = "059";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        SocialUtils.checkBlocking(user, client, HttpStatus.SC_UNAUTHORIZED, null, null);
     }
 
     //Send a Message
