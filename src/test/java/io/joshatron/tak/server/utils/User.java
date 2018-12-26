@@ -12,6 +12,12 @@ public class User {
         this.userId = userId;
     }
 
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+        this.userId = "000000000000000";
+    }
+
     public String getUsername() {
         return username;
     }

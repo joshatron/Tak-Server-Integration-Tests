@@ -14,10 +14,9 @@ public class SocialTest {
     private String suite;
     private HttpClient client;
 
-    public SocialTest() {
+    public SocialTest() throws IOException {
         client = HttpUtils.createHttpClient();
         suite = "B" + RandomUtils.generateSuite(10);
-        System.out.println("Suite: " + suite);
     }
 
     //Create Friend Request
@@ -338,36 +337,76 @@ public class SocialTest {
     @Test
     public void unfriendUser_UnfriendFriend_204NoLongerFriends() throws IOException {
         String test = "097";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        SocialUtils.unfriendUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
     @Test
     public void unfriendUser_UnfriendNonfriend_404() throws IOException {
         String test = "098";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.unfriendUser(user1, user2, client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test
     public void unfriendUser_UnfriendBlocked_403() throws IOException {
         String test = "099";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.unfriendUser(user1, user2, client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test
     public void unfriendUser_UnfriendWithRequest_404() throws IOException {
         String test = "100";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.unfriendUser(user1, user2, client, HttpStatus.SC_NOT_FOUND);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
     @Test
     public void unfriendUser_UnfriendInvalidUser_404() throws IOException {
         String test = "101";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(suite + test + "02", "password");
+        SocialUtils.unfriendUser(user1, user2, client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test
     public void unfriendUser_InvalidUser_401() throws IOException {
         String test = "102";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        user1.setUsername(suite + test + "03");
+        SocialUtils.unfriendUser(user1, user2, client, HttpStatus.SC_UNAUTHORIZED);
+        user1.setUsername(suite + test + "01");
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
     @Test
     public void unfriendUser_InvalidPassword_401() throws IOException {
         String test = "103";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
+        user1.setPassword("drowssap");
+        SocialUtils.unfriendUser(user1, user2, client, HttpStatus.SC_UNAUTHORIZED);
+        user1.setPassword("password");
+        SocialUtils.checkFriends(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
     //Block User
@@ -474,398 +513,448 @@ public class SocialTest {
 
     //Unblock User
     @Test
-    public void unblockUser_Normal_204BlockRemoved() {
+    public void unblockUser_Normal_204BlockRemoved() throws IOException {
         String test = "039";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.unblockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void unblockUser_UnblockedWhileBlocked_204OnlyYourBlockRemoved() {
+    public void unblockUser_UnblockedWhileBlocked_204OnlyYourBlockRemoved() throws IOException {
         String test = "040";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.unblockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
-    public void unblockUser_UnblockWhileNoBlock_403() {
+    public void unblockUser_UnblockWhileNoBlock_404() throws IOException {
         String test = "041";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.unblockUser(user1, user2, client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test
-    public void unblockUser_InvalidUser_403() {
+    public void unblockUser_InvalidUser_401() throws IOException {
         String test = "042";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(suite + test + "03", "password");
+        SocialUtils.unblockUser(user3, user2, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
-    public void unblockUser_InvalidCredentials_403() {
+    public void unblockUser_InvalidCredentials_401() throws IOException {
         String test = "043";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        user1.setPassword("drowssap");
+        SocialUtils.unblockUser(user1, user2, client, HttpStatus.SC_UNAUTHORIZED);
+        user1.setPassword("password");
+        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
-    public void unblockUser_InvalidUserToUnblock_403() {
+    public void unblockUser_InvalidUserToUnblock_404() throws IOException {
         String test = "044";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(suite + test + "03", "password");
+        SocialUtils.unblockUser(user1, user3, client, HttpStatus.SC_NOT_FOUND);
     }
 
     //Check If Blocked
     @Test
-    public void checkIfBlocked_UserBlocked_403() {
+    public void checkIfBlocked_UserBlocked_403() throws IOException {
         String test = "104";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
-    public void checkIfBlocked_UserNotBlocked_204() {
+    public void checkIfBlocked_UserNotBlocked_204() throws IOException {
         String test = "105";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void checkIfBlocked_UserBlocking_204() {
+    public void checkIfBlocked_UserBlocking_204() throws IOException {
         String test = "106";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void checkIfBlocked_InvalidUser_401() {
+    public void checkIfBlocked_InvalidUser_401() throws IOException {
         String test = "107";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(suite + test + "03", "password");
+        SocialUtils.checkIfBlocked(user3, user2, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
-    public void checkIfBlocked_InvalidPassword_401() {
+    public void checkIfBlocked_InvalidPassword_401() throws IOException {
         String test = "108";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        user2.setPassword("drowssap");
+        SocialUtils.checkIfBlocked(user2, user1, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     //List Friends
     @Test
-    public void listFriends_NoFriends_200EmptyArray() {
+    public void listFriends_NoFriends_200EmptyArray() throws IOException {
         String test = "045";
     }
 
     @Test
-    public void listFriends_OneFriend_200ArrayWithOne() {
+    public void listFriends_OneFriend_200ArrayWithOne() throws IOException {
         String test = "046";
     }
 
     @Test
-    public void listFriends_MultipleFriends_200ArrayWithMultiple() {
+    public void listFriends_MultipleFriends_200ArrayWithMultiple() throws IOException {
         String test = "047";
     }
 
     @Test
-    public void listFriends_CreatedByYou_200ArrayWithOne() {
+    public void listFriends_CreatedByYou_200ArrayWithOne() throws IOException {
         String test = "048";
     }
 
     @Test
-    public void listFriends_CreatedByOther_200ArrayWithOne() {
+    public void listFriends_CreatedByOther_200ArrayWithOne() throws IOException {
         String test = "049";
     }
 
     @Test
-    public void listFriends_IncomingRequest_200EmptyArray() {
+    public void listFriends_IncomingRequest_200EmptyArray() throws IOException {
         String test = "050";
     }
 
     @Test
-    public void listFriends_OutgoingRequest_200EmptyArray() {
+    public void listFriends_OutgoingRequest_200EmptyArray() throws IOException {
         String test = "051";
     }
 
     @Test
-    public void listFriends_InvalidUser_403() {
+    public void listFriends_InvalidUser_403() throws IOException {
         String test = "052";
     }
 
     @Test
-    public void listFriends_InvalidCredentials_403() {
+    public void listFriends_InvalidCredentials_403() throws IOException {
         String test = "053";
     }
 
     //List Blocking Users
     @Test
-    public void listBlocking_NoBlocked_200EmptyArray() {
+    public void listBlocking_NoBlocked_200EmptyArray() throws IOException {
         String test = "054";
     }
 
     @Test
-    public void listBlocking_OneBlocked_200ArrayWithOne() {
+    public void listBlocking_OneBlocked_200ArrayWithOne() throws IOException {
         String test = "055";
     }
 
     @Test
-    public void listBlocking_MultipleBlocked_200ArrayWithMultiple() {
+    public void listBlocking_MultipleBlocked_200ArrayWithMultiple() throws IOException {
         String test = "056";
     }
 
     @Test
-    public void listBlocking_BeenBlocked_200EmptyArray() {
+    public void listBlocking_BeenBlocked_200EmptyArray() throws IOException {
         String test = "057";
     }
 
     @Test
-    public void listBlocking_InvalidUser_403() {
+    public void listBlocking_InvalidUser_403() throws IOException {
         String test = "058";
     }
 
     @Test
-    public void listBlocking_InvalidCredentials_403() {
+    public void listBlocking_InvalidCredentials_403() throws IOException {
         String test = "059";
     }
 
     //Send a Message
     @Test
-    public void sendMessage_NormalMessage_204MessageSent() {
+    public void sendMessage_NormalMessage_204MessageSent() throws IOException {
         String test = "060";
     }
 
     @Test
-    public void sendMessage_EmptyMessage_403NotSent() {
+    public void sendMessage_EmptyMessage_403NotSent() throws IOException {
         String test = "061";
     }
 
     @Test
-    public void sendMessage_InvalidRecipient_403NotSent() {
+    public void sendMessage_InvalidRecipient_403NotSent() throws IOException {
         String test = "062";
     }
 
     @Test
-    public void sendMessage_InvalidUser_403NotSent() {
+    public void sendMessage_InvalidUser_403NotSent() throws IOException {
         String test = "063";
     }
 
     @Test
-    public void sendMessage_InvalidCredentials_403NotSent() {
+    public void sendMessage_InvalidCredentials_403NotSent() throws IOException {
         String test = "064";
     }
 
     @Test
-    public void sendMessage_SentToBlocked_403NotSent() {
+    public void sendMessage_SentToBlocked_403NotSent() throws IOException {
         String test = "065";
     }
 
     @Test
-    public void sendMessage_SentToNonFriend_204Sent() {
+    public void sendMessage_SentToNonFriend_204Sent() throws IOException {
         String test = "066";
     }
 
     @Test
-    public void sendMessage_SentToFriend_204Sent() {
+    public void sendMessage_SentToFriend_204Sent() throws IOException {
         String test = "067";
     }
 
     @Test
-    public void sendMessage_SuperLongMessage_403NotSent() {
+    public void sendMessage_SuperLongMessage_403NotSent() throws IOException {
         String test = "068";
     }
 
     //Read Messages
     @Test
-    public void readMessages_NoParameters_200AllMessages() {
+    public void readMessages_NoParameters_200AllMessages() throws IOException {
         String test = "069";
     }
 
     @Test
-    public void readMessages_AllParameters_200FilteredMessages() {
+    public void readMessages_AllParameters_200FilteredMessages() throws IOException {
         String test = "130";
     }
     @Test
-    public void readMessages_InvalidUser_403() {
+    public void readMessages_InvalidUser_403() throws IOException {
         String test = "070";
     }
 
     @Test
-    public void readMessages_InvalidCredentials_403() {
+    public void readMessages_InvalidCredentials_403() throws IOException {
         String test = "071";
     }
 
     @Test
-    public void readMessages_OneSender_200MessagesFromSender() {
+    public void readMessages_OneSender_200MessagesFromSender() throws IOException {
         String test = "072";
     }
 
     @Test
-    public void readMessages_MultipleSenders_200MessagesFromSenders() {
+    public void readMessages_MultipleSenders_200MessagesFromSenders() throws IOException {
         String test = "073";
     }
 
     @Test
-    public void readMessages_NormalStart_200MessagesAfterStart() {
+    public void readMessages_NormalStart_200MessagesAfterStart() throws IOException {
         String test = "074";
     }
 
     @Test
-    public void readMessages_StartAtCurrent_200NoMessages() {
+    public void readMessages_StartAtCurrent_200NoMessages() throws IOException {
         String test = "075";
     }
 
     @Test
-    public void readMessages_StartAtFuture_403() {
+    public void readMessages_StartAtFuture_403() throws IOException {
         String test = "076";
     }
 
     @Test
-    public void readMessages_EndTimeNormal_200MessagesBeforeEnd() {
+    public void readMessages_EndTimeNormal_200MessagesBeforeEnd() throws IOException {
         String test = "121";
     }
 
     @Test
-    public void readMessages_EndTimeBeforeAll_200NoMessages() {
+    public void readMessages_EndTimeBeforeAll_200NoMessages() throws IOException {
         String test = "122";
     }
 
     @Test
-    public void readMessages_StartAndEnd_200MessagesBetweenStartAndEnd() {
+    public void readMessages_StartAndEnd_200MessagesBetweenStartAndEnd() throws IOException {
         String test = "123";
     }
 
     @Test
-    public void readMessages_StartAfterEnd_400() {
+    public void readMessages_StartAfterEnd_400() throws IOException {
         String test = "124";
     }
 
     @Test
-    public void readMessages_OnlyUnread_200OnlyUnreadMessages() {
+    public void readMessages_OnlyUnread_200OnlyUnreadMessages() throws IOException {
         String test = "077";
     }
 
     @Test
-    public void readMessages_OnlyRead_200OnlyReadMessages() {
+    public void readMessages_OnlyRead_200OnlyReadMessages() throws IOException {
         String test = "078";
     }
 
     @Test
-    public void readMessages_ReadBadFormat_400() {
+    public void readMessages_ReadBadFormat_400() throws IOException {
         String test = "079";
     }
 
     @Test
-    public void readMessages_StartBadFormat_400() {
+    public void readMessages_StartBadFormat_400() throws IOException {
         String test = "080";
     }
 
     @Test
-    public void readMessages_EndBadFormat_400() {
+    public void readMessages_EndBadFormat_400() throws IOException {
         String test = "125";
     }
 
     @Test
-    public void readMessages_InvalidSender_404() {
+    public void readMessages_InvalidSender_404() throws IOException {
         String test = "081";
     }
 
     @Test
-    public void readMessages_InvalidAndValidSender_404MessagesFromValidSenders() {
+    public void readMessages_InvalidAndValidSender_404MessagesFromValidSenders() throws IOException {
         String test = "126";
     }
 
     @Test
-    public void readMessages_SenderNoMessages_200NoMessages() {
+    public void readMessages_SenderNoMessages_200NoMessages() throws IOException {
         String test = "082";
     }
 
     @Test
-    public void readMessages_FromMe_200MessagesYouSentOnly() {
+    public void readMessages_FromMe_200MessagesYouSentOnly() throws IOException {
         String test = "127";
     }
 
     @Test
-    public void readMessages_FromOther_200MessagesYouRecievedOnly() {
+    public void readMessages_FromOther_200MessagesYouRecievedOnly() throws IOException {
         String test = "128";
     }
 
     @Test
-    public void readMessages_InvalidFrom_400() {
+    public void readMessages_InvalidFrom_400() throws IOException {
         String test = "129";
     }
 
     //Mark Messages Read
     @Test
-    public void markRead_NoParameters_204AllMessagesRead() {
+    public void markRead_NoParameters_204AllMessagesRead() throws IOException {
         String test = "109";
     }
 
     @Test
-    public void markRead_Ids_204SpecifiedMessagesRead() {
+    public void markRead_Ids_204SpecifiedMessagesRead() throws IOException {
         String test = "110";
     }
 
     @Test
-    public void markRead_StartTime_204SpecifiedMessagesRead() {
+    public void markRead_StartTime_204SpecifiedMessagesRead() throws IOException {
         String test = "111";
     }
 
     @Test
-    public void markRead_IdsAndStartTime_204SpecifiedMessagesRead() {
+    public void markRead_IdsAndStartTime_204SpecifiedMessagesRead() throws IOException {
         String test = "112";
     }
 
     @Test
-    public void markRead_InvalidIds_404() {
+    public void markRead_InvalidIds_404() throws IOException {
         String test = "113";
     }
 
     @Test
-    public void markRead_InvalidAndValidIds_404AllValidMarked() {
+    public void markRead_InvalidAndValidIds_404AllValidMarked() throws IOException {
         String test = "114";
     }
 
     @Test
-    public void markRead_InvalidAndValidTime_404AllValidMarked() {
+    public void markRead_InvalidAndValidTime_404AllValidMarked() throws IOException {
         String test = "115";
     }
 
     @Test
-    public void markRead_StartTimeAfterNow_404() {
+    public void markRead_StartTimeAfterNow_404() throws IOException {
         String test = "116";
     }
 
     @Test
-    public void markRead_IdNotYourMessage_403() {
+    public void markRead_IdNotYourMessage_403() throws IOException {
         String test = "117";
     }
 
     @Test
-    public void markRead_IdYouAreSender_403() {
+    public void markRead_IdYouAreSender_403() throws IOException {
         String test = "118";
     }
 
     @Test
-    public void markRead_InvalidUser_401() {
+    public void markRead_InvalidUser_401() throws IOException {
         String test = "119";
     }
 
     @Test
-    public void markRead_InvalidPassword_401() {
+    public void markRead_InvalidPassword_401() throws IOException {
         String test = "120";
     }
 
     //Get Notifications
     @Test
-    public void getNotifications_NoRequests_200RequestsFieldZero() {
+    public void getNotifications_NoRequests_200RequestsFieldZero() throws IOException {
         String test = "090";
     }
 
     @Test
-    public void getNotifications_NonZeroRequests_200RequestsFieldMoreThanZero() {
+    public void getNotifications_NonZeroRequests_200RequestsFieldMoreThanZero() throws IOException {
         String test = "091";
     }
 
     @Test
-    public void getNotifications_NoMessages_200MessagesFieldMoreThanZero() {
+    public void getNotifications_NoMessages_200MessagesFieldMoreThanZero() throws IOException {
         String test = "092";
     }
 
     @Test
-    public void getNotifications_NonZeroMessages_200MessagesFieldMoreThanZero() {
+    public void getNotifications_NonZeroMessages_200MessagesFieldMoreThanZero() throws IOException {
         String test = "093";
     }
 
     @Test
-    public void getNotifications_NonZeroMessagesSomeRead_200MessagesFieldNonZeroNotIncludingRead() {
+    public void getNotifications_NonZeroMessagesSomeRead_200MessagesFieldNonZeroNotIncludingRead() throws IOException {
         String test = "094";
     }
 
     @Test
-    public void getNotifications_InvalidUser_401() {
+    public void getNotifications_InvalidUser_401() throws IOException {
         String test = "095";
     }
 
     @Test
-    public void getNotifications_InvalidPassword_401() {
+    public void getNotifications_InvalidPassword_401() throws IOException {
         String test = "096";
     }
 }

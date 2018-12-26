@@ -15,7 +15,6 @@ public class GameTest {
     public GameTest() {
         client = HttpUtils.createHttpClient();
         suite = "C" + RandomUtils.generateSuite(10);
-        System.out.println("Suite: " + suite);
     }
 
     //Request a Game

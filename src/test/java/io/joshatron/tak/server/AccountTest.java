@@ -18,7 +18,6 @@ public class AccountTest {
     public AccountTest() {
         client = HttpUtils.createHttpClient();
         suite = "A" + RandomUtils.generateSuite(10);
-        System.out.println("Suite: " + suite);
     }
 
     //Register User
