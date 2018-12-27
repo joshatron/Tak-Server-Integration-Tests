@@ -1032,35 +1032,59 @@ public class SocialTest {
     @Test
     public void getNotifications_NoRequests_200RequestsFieldZero() throws IOException {
         String test = "090";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkSocialNotifications(user, client, HttpStatus.SC_OK, 0, 0);
     }
 
     @Test
     public void getNotifications_NonZeroRequests_200RequestsFieldMoreThanZero() throws IOException {
         String test = "091";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 1, 0);
     }
 
     @Test
-    public void getNotifications_NoMessages_200MessagesFieldMoreThanZero() throws IOException {
+    public void getNotifications_NoMessages_200MessagesFieldZero() throws IOException {
         String test = "092";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkSocialNotifications(user, client, HttpStatus.SC_OK, 0, 0);
     }
 
     @Test
     public void getNotifications_NonZeroMessages_200MessagesFieldMoreThanZero() throws IOException {
         String test = "093";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 1);
     }
 
     @Test
     public void getNotifications_NonZeroMessagesSomeRead_200MessagesFieldNonZeroNotIncludingRead() throws IOException {
         String test = "094";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, null, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 1);
     }
 
     @Test
     public void getNotifications_InvalidUser_401() throws IOException {
         String test = "095";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(suite + test + "02", "password");
+        SocialUtils.checkSocialNotifications(user2, client, HttpStatus.SC_UNAUTHORIZED, 0, 0);
     }
 
     @Test
     public void getNotifications_InvalidPassword_401() throws IOException {
         String test = "096";
+        User user = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        SocialUtils.checkSocialNotifications(user, client, HttpStatus.SC_UNAUTHORIZED, 0, 0);
     }
 }
