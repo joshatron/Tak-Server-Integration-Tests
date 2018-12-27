@@ -761,46 +761,90 @@ public class SocialTest {
     @Test
     public void sendMessage_NormalMessage_204MessageSent() throws IOException {
         String test = "060";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user2, null, null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void sendMessage_EmptyMessage_403NotSent() throws IOException {
+    public void sendMessage_EmptyMessage_400NotSent() throws IOException {
         String test = "061";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "", client, HttpStatus.SC_BAD_REQUEST);
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void sendMessage_InvalidRecipient_403NotSent() throws IOException {
+    public void sendMessage_InvalidRecipient_404NotSent() throws IOException {
         String test = "062";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(suite + test + "03", "password");
+        SocialUtils.sendMessage(user1, user3, "hello world", client, HttpStatus.SC_NOT_FOUND);
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void sendMessage_InvalidUser_403NotSent() throws IOException {
+    public void sendMessage_InvalidUser_401NotSent() throws IOException {
         String test = "063";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(suite + test + "03", "password");
+        SocialUtils.sendMessage(user3, user1, "hello world", client, HttpStatus.SC_UNAUTHORIZED);
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void sendMessage_InvalidCredentials_403NotSent() throws IOException {
+    public void sendMessage_InvalidCredentials_401NotSent() throws IOException {
         String test = "064";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        user1.setPassword("drowssap");
+        SocialUtils.sendMessage(user1, user2, "hello world", client, HttpStatus.SC_UNAUTHORIZED);
+        user1.setPassword("password");
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 0);
     }
 
     @Test
     public void sendMessage_SentToBlocked_403NotSent() throws IOException {
         String test = "065";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hello world", client, HttpStatus.SC_FORBIDDEN);
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 0);
     }
 
     @Test
     public void sendMessage_SentToNonFriend_204Sent() throws IOException {
         String test = "066";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 1);
     }
 
     @Test
     public void sendMessage_SentToFriend_204Sent() throws IOException {
         String test = "067";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void sendMessage_SuperLongMessage_403NotSent() throws IOException {
+    public void sendMessage_SuperLongMessage_400NotSent() throws IOException {
         String test = "068";
+        String message5001Letters = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus ipsum, pretium in sapien dignissim, lobortis porttitor nulla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque aliquam quam quis odio finibus sollicitudin. Curabitur eget faucibus lorem. Sed tristique tincidunt congue. Vestibulum scelerisque commodo lectus non feugiat. Curabitur pulvinar sit amet sem ac tempus. Curabitur ut malesuada velit. Aliquam non pretium turpis, et elementum ex. Aenean congue magna quis arcu vehicula rhoncus. Proin lacinia mauris eget venenatis posuere. Nam iaculis et ligula ut pellentesque. Cras finibus tellus eget facilisis varius. Pellentesque malesuada auctor odio ultricies hendrerit. Pellentesque fringilla nibh non tellus dignissim fermentum. Mauris id urna lectus. Pellentesque posuere vitae mauris sit amet vehicula. In magna magna, molestie eget condimentum rhoncus, lacinia nec sapien. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam facilisis tincidunt dolor, id egestas massa dapibus et. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sit amet cursus nisl. Aenean sodales dolor ligula. Mauris condimentum leo elementum velit pellentesque pellentesque. Nunc nec est odio. Phasellus finibus tellus leo, et aliquam ipsum dictum vitae. Praesent sit amet quam a dolor euismod viverra vel ut ante. Phasellus elementum elementum nisl, sed molestie elit sagittis eu. Ut ante purus, gravida eget sollicitudin non, accumsan in tortor. Nullam ac fringilla nisi, sed semper risus. Cras vitae ornare magna, sed congue odio. Duis nec justo finibus libero semper porttitor. Ut pellentesque metus finibus finibus ultricies. Nam imperdiet pharetra neque a egestas. In malesuada finibus ullamcorper. Phasellus ullamcorper vehicula quam et auctor. Vestibulum ultricies augue a elit malesuada, id faucibus eros tincidunt. Aliquam at tincidunt odio, id maximus ligula. Vivamus congue sem mauris, in commodo erat mattis eget. Etiam id leo fermentum, eleifend urna gravida, vestibulum enim. Integer id tempus nulla. Donec in sollicitudin odio, nec pellentesque tortor. Aliquam dictum lectus vitae ornare elementum. Quisque lobortis mi et tincidunt sodales. Nam ut finibus tortor. Integer ornare, elit eget hendrerit ultricies, massa ligula elementum purus, ut molestie augue odio a ligula. Nullam ornare feugiat tellus, ut laoreet ante mattis iaculis. Mauris purus urna, semper quis viverra et, dapibus sit amet velit. Pellentesque cursus risus diam, et varius libero aliquet in. Curabitur quis sapien sed turpis ultrices ornare sit amet pellentesque nisi. Donec mollis ultrices tellus non tincidunt. Proin pharetra justo ut nisi bibendum dapibus. Mauris placerat sollicitudin ante, eu laoreet ipsum posuere nec. Sed nunc lorem, rutrum sed erat sed, accumsan pulvinar dolor. Morbi ut tempus lacus, sed varius enim. Suspendisse convallis quam vel tempus laoreet. In mattis felis luctus elit scelerisque, vitae accumsan enim gravida. Etiam rhoncus neque ac neque pharetra pellentesque. Duis imperdiet libero eget sagittis maximus. Nulla vehicula efficitur felis in porta. In fermentum erat et consequat tristique. Nam interdum posuere nisl, eu tempor urna fermentum sit amet. Sed pretium dictum consequat. Etiam justo enim, viverra a porttitor eu, semper a nunc. Sed euismod, lacus at ullamcorper venenatis, felis purus fermentum lorem, ac feugiat velit metus id nisi. Integer aliquet leo ac turpis dictum rhoncus. Vestibulum varius dui nec mi imperdiet tincidunt. Donec porttitor faucibus lobortis. Quisque pretium nisl et mauris convallis, quis blandit nunc porttitor. Sed auctor ultrices mi pharetra semper. Ut imperdiet lacus lorem, quis tincidunt nunc ultricies scelerisque. Donec ligula felis, elementum non sodales iaculis, venenatis quis quam. Duis malesuada nibh dictum facilisis facilisis. Curabitur fermentum mattis sapien, eget laoreet nisi finibus vel. Curabitur felis urna, sagittis et dictum ac, volutpat nec nisi. Aliquam efficitur elementum efficitur. Aliquam dolor nulla, malesuada a erat nec, feugiat ultrices magna.;Sed vestibulum nec diam non tristique. Nulla sed ante non massa convallis egestas non eget urna. Integer molestie suscipit ex, mattis scelerisque mi tincidunt quis. Quisque id porta purus. Maecenas a facilisis ligula, eu feugiat tellus. Donec leo arcu, lobortis id laoreet in, sagittis vitae neque. Integer at vehicula lectus, ac dictum nunc. Donec molestie sit amet justo quis placerat. Proin quis gravida libero. Aenean tincidunt mi ligula, eget pharetra arcu sagittis eget. Maecenas id ipsum ut leo tempus tincidunt. Vivamus maximus dolor eros, eu dapibus urna aliquam vel. Aenean pretium fringilla risus sed aliquam. Phasellus blandit metus sit amet maximus dapibus. Donec id dolor eleifend, euismod tortor a, venenatis ipsum. Nulla rhoncus lorem laoreet tempor consectetur. Quisque mattis auctor euismod. Praesent quis dictum urna. Aened.";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, message5001Letters, client, HttpStatus.SC_BAD_REQUEST);
+        SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 0);
     }
 
     //Read Messages

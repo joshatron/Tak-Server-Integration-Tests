@@ -4,6 +4,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 
@@ -128,23 +129,20 @@ public class SocialUtils {
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
-    public static void searchMessages(User user, String senders, Date start, Date end, String read, String from, HttpClient client, int expected, String[] included, String[] excluded) throws IOException {
+    public static void searchMessages(User user, String senders, Date start, Date end, String read, String from, HttpClient client, int expected, int numExpected) throws IOException {
         HttpResponse response = HttpUtils.searchMessages(user.getUsername(), user.getPassword(), senders, start, end, read, from, client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String contents = EntityUtils.toString(response.getEntity());
-            if (included != null && included.length > 0) {
-                for (String include : included) {
-                    //Makes sure there is just one occurrence
-                    Assert.assertEquals(1, (contents.length() - contents.replace(include, "").length()) / include.length());
-                }
-            }
-            if (excluded != null && excluded.length > 0) {
-                for (String exclude : excluded) {
-                    Assert.assertFalse(contents.contains(exclude));
-                }
+            if(numExpected >= 0) {
+                JSONArray array = new JSONArray(contents);
+                Assert.assertEquals(numExpected, array.length());
             }
         }
+    }
+
+    public static void searchAllMessages(User user, HttpClient client, int expected, int numExpected) throws IOException {
+        searchMessages(user, null, null, null, null, null, client, expected, numExpected);
     }
 
     public static void markMessagesRead(User user, String[] ids, Date start, HttpClient client, int expected) throws IOException {
