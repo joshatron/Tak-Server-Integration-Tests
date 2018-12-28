@@ -129,7 +129,7 @@ public class SocialUtils {
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
-    public static void searchMessages(User user, String senders, Date start, Date end, String read, String from, HttpClient client, int expected, int numExpected) throws IOException {
+    public static JSONArray searchMessages(User user, String senders, Date start, Date end, String read, String from, HttpClient client, int expected, int numExpected) throws IOException {
         HttpResponse response = HttpUtils.searchMessages(user.getUsername(), user.getPassword(), senders, start, end, read, from, client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -137,12 +137,15 @@ public class SocialUtils {
             if(numExpected >= 0) {
                 JSONArray array = new JSONArray(contents);
                 Assert.assertEquals(numExpected, array.length());
+                return array;
             }
         }
+
+        return null;
     }
 
-    public static void searchAllMessages(User user, HttpClient client, int expected, int numExpected) throws IOException {
-        searchMessages(user, null, null, null, null, null, client, expected, numExpected);
+    public static JSONArray searchAllMessages(User user, HttpClient client, int expected, int numExpected) throws IOException {
+        return searchMessages(user, null, null, null, null, null, client, expected, numExpected);
     }
 
     public static void markMessagesRead(User user, String[] ids, Date start, HttpClient client, int expected) throws IOException {
