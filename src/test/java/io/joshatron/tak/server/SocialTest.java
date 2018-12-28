@@ -851,124 +851,271 @@ public class SocialTest {
         SocialUtils.searchAllMessages(user2,client, HttpStatus.SC_OK, 0);
     }
 
-    //Read Messages
+    //Search Messages
     @Test
-    public void readMessages_NoParameters_200AllMessages() throws IOException {
+    public void searchMessages_NoParameters_200AllMessages() throws IOException {
         String test = "069";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchAllMessages(user1, client, HttpStatus.SC_OK, 2);
     }
 
     @Test
-    public void readMessages_AllParameters_200FilteredMessages() throws IOException {
+    public void searchMessages_AllParameters_200FilteredMessages() throws IOException, InterruptedException {
         String test = "130";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        Date start = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, null, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world redux", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hi world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user3, user1, "hello world tridux", client, HttpStatus.SC_NO_CONTENT);
+        Date end = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world last", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, user2.getUserId(), start, end, "NOT_READ", "THEM", client, HttpStatus.SC_OK, 1);
     }
     @Test
-    public void readMessages_InvalidUser_403() throws IOException {
+    public void searchMessages_InvalidUser_401() throws IOException {
         String test = "070";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(suite + test + "03", "password");
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchAllMessages(user3, client, HttpStatus.SC_UNAUTHORIZED, 0);
     }
 
     @Test
-    public void readMessages_InvalidCredentials_403() throws IOException {
+    public void searchMessages_InvalidCredentials_401() throws IOException {
         String test = "071";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        user1.setPassword("drowssap");
+        SocialUtils.searchAllMessages(user1, client, HttpStatus.SC_UNAUTHORIZED, 2);
     }
 
     @Test
-    public void readMessages_OneSender_200MessagesFromSender() throws IOException {
+    public void searchMessages_OneSender_200MessagesFromSender() throws IOException {
         String test = "072";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user3, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, user3.getUserId(), null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void readMessages_MultipleSenders_200MessagesFromSenders() throws IOException {
+    public void searchMessages_MultipleSenders_200MessagesFromSenders() throws IOException {
         String test = "073";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(suite, test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user3, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user4, user1, "hello world the last", client, HttpStatus.SC_NO_CONTENT);
+        String users = user3.getUserId() + "," + user4.getUserId();
+        SocialUtils.searchMessages(user1, users, null, null, null, null, client, HttpStatus.SC_OK, 2);
     }
 
     @Test
-    public void readMessages_NormalStart_200MessagesAfterStart() throws IOException {
+    public void searchMessages_NormalStart_200MessagesAfterStart() throws IOException, InterruptedException {
         String test = "074";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        Date now = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, now, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void readMessages_StartAtCurrent_200NoMessages() throws IOException {
+    public void searchMessages_StartAtCurrent_200NoMessages() throws IOException {
         String test = "075";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        Date now = new Date();
+        SocialUtils.searchMessages(user1, null, now, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void readMessages_StartAtFuture_403() throws IOException {
+    public void searchMessages_StartAtFuture_403() throws IOException {
         String test = "076";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        SocialUtils.searchMessages(user1, null, calendar.getTime(), null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void readMessages_EndTimeNormal_200MessagesBeforeEnd() throws IOException {
+    public void searchMessages_EndTimeNormal_200MessagesBeforeEnd() throws IOException, InterruptedException {
         String test = "121";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        Date now = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, now, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void readMessages_EndTimeBeforeAll_200NoMessages() throws IOException {
+    public void searchMessages_EndTimeBeforeAll_200NoMessages() throws IOException, InterruptedException {
         String test = "122";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        Date now = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, now, null, null, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void readMessages_StartAndEnd_200MessagesBetweenStartAndEnd() throws IOException {
+    public void searchMessages_StartAndEnd_200MessagesBetweenStartAndEnd() throws IOException, InterruptedException {
         String test = "123";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        Date start = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        Date end = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world last time", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, start, end, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void readMessages_StartAfterEnd_400() throws IOException {
+    public void searchMessages_StartAfterEnd_400() throws IOException, InterruptedException {
         String test = "124";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        Date start = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        Date end = new Date();
+        Thread.sleep(2000);
+        SocialUtils.sendMessage(user2, user1, "hello world last time", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, end, start, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void readMessages_OnlyUnread_200OnlyUnreadMessages() throws IOException {
+    public void searchMessages_OnlyUnread_200OnlyUnreadMessages() throws IOException {
         String test = "077";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, null, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world last", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, null, "NOT_READ", null, client, HttpStatus.SC_OK, 2);
     }
 
     @Test
-    public void readMessages_OnlyRead_200OnlyReadMessages() throws IOException {
+    public void searchMessages_OnlyRead_200OnlyReadMessages() throws IOException {
         String test = "078";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, null, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world last", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, null, "READ", null, client, HttpStatus.SC_OK, 2);
     }
 
     @Test
-    public void readMessages_ReadBadFormat_400() throws IOException {
+    public void searchMessages_ReadBadFormat_400() throws IOException {
         String test = "079";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, null, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world last", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, null, "NOTHING", null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
-    public void readMessages_StartBadFormat_400() throws IOException {
-        String test = "080";
-    }
-
-    @Test
-    public void readMessages_EndBadFormat_400() throws IOException {
-        String test = "125";
-    }
-
-    @Test
-    public void readMessages_InvalidSender_404() throws IOException {
+    public void searchMessages_InvalidSender_404() throws IOException {
         String test = "081";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, "000000000000000", null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
     @Test
-    public void readMessages_InvalidAndValidSender_404MessagesFromValidSenders() throws IOException {
+    public void searchMessages_InvalidAndValidSender_404MessagesFromValidSenders() throws IOException {
         String test = "126";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user3, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, "000000000000000," + user3.getUserId(), null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 1);
     }
 
     @Test
-    public void readMessages_SenderNoMessages_200NoMessages() throws IOException {
+    public void searchMessages_SenderNoMessages_200NoMessages() throws IOException {
         String test = "082";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, user3.getUserId(), null, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void readMessages_FromMe_200MessagesYouSentOnly() throws IOException {
+    public void searchMessages_FromMe_200MessagesYouSentOnly() throws IOException {
         String test = "127";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hello world last", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, null, null, "ME", client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void readMessages_FromOther_200MessagesYouRecievedOnly() throws IOException {
+    public void searchMessages_FromOther_200MessagesYouRecievedOnly() throws IOException {
         String test = "128";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hello world last", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, null, null, "THEM", client, HttpStatus.SC_OK, 2);
     }
 
     @Test
-    public void readMessages_InvalidFrom_400() throws IOException {
+    public void searchMessages_InvalidFrom_400() throws IOException {
         String test = "129";
+        User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user1, user2, "hello world last", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.searchMessages(user1, null, null, null, null, "WHO_KNOWS", client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     //Mark Messages Read
