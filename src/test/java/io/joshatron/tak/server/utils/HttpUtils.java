@@ -382,7 +382,7 @@ public class HttpUtils {
         return client.execute(request);
     }
 
-    public static HttpResponse getNotifications(String username, String password, HttpClient client) throws IOException {
+    public static HttpResponse getSocialNotifications(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/notifications");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));

@@ -154,7 +154,7 @@ public class SocialUtils {
     }
 
     public static void checkSocialNotifications(User user, HttpClient client, int expected, int expectedRequests, int expectedMessages) throws IOException {
-        HttpResponse response = HttpUtils.getNotifications(user.getUsername(), user.getPassword(), client);
+        HttpResponse response = HttpUtils.getSocialNotifications(user.getUsername(), user.getPassword(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String contents = EntityUtils.toString(response.getEntity());
