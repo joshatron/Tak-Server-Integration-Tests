@@ -296,7 +296,7 @@ public class HttpUtils {
         StringBuilder params = new StringBuilder("?");
 
         if(senders != null) {
-            params.append("senders=");
+            params.append("others=");
             params.append(senders);
             first = false;
         }

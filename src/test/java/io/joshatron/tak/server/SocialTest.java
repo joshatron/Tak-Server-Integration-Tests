@@ -1014,7 +1014,7 @@ public class SocialTest {
         Date end = new Date();
         Thread.sleep(2000);
         SocialUtils.sendMessage(user2, user1, "hello world last time", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.searchMessages(user1, null, end, start, null, null, client, HttpStatus.SC_OK, 1);
+        SocialUtils.searchMessages(user1, null, end, start, null, null, client, HttpStatus.SC_BAD_REQUEST, 1);
     }
 
     @Test
@@ -1054,24 +1054,24 @@ public class SocialTest {
     }
 
     @Test
-    public void searchMessages_InvalidSender_404() throws IOException {
+    public void searchMessages_InvalidSender_200NoMessages() throws IOException {
         String test = "081";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.searchMessages(user1, "000000000000000", null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 0);
+        SocialUtils.searchMessages(user1, "000000000000000", null, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void searchMessages_InvalidAndValidSender_404MessagesFromValidSenders() throws IOException {
+    public void searchMessages_InvalidAndValidSender_200MessagesFromValidSenders() throws IOException {
         String test = "126";
         User user1 = AccountUtils.addUser(suite, test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(suite, test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(suite, test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user3, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.searchMessages(user1, "000000000000000," + user3.getUserId(), null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 1);
+        SocialUtils.searchMessages(user1, "000000000000000," + user3.getUserId(), null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
