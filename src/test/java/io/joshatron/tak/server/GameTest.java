@@ -41,11 +41,11 @@ public class GameTest {
     }
 
     @Test
-    public void requestGame_RequestNonexistent_403RequestNotMade() throws IOException {
+    public void requestGame_RequestNonexistent_404RequestNotMade() throws IOException {
     }
 
     @Test
-    public void requestGame_RequestWithExisting_403RequestNotMade() throws IOException {
+    public void requestGame_RequestWithExistingRequest_403RequestNotMade() throws IOException {
     }
 
     @Test
@@ -57,11 +57,11 @@ public class GameTest {
     }
 
     @Test
-    public void requestGame_InvalidUser_403RequestNotMade() throws IOException {
+    public void requestGame_InvalidUser_401RequestNotMade() throws IOException {
     }
 
     @Test
-    public void requestGame_InvalidCredentials_403RequestNotMade() throws IOException {
+    public void requestGame_InvalidCredentials_401RequestNotMade() throws IOException {
     }
 
     //Cancel a Game Request
@@ -82,7 +82,7 @@ public class GameTest {
     }
 
     @Test
-    public void cancelGameRequest_RequestNotMade_403() throws IOException {
+    public void cancelGameRequest_RequestNotMade_404() throws IOException {
     }
 
     //Respond to Game Request
@@ -95,19 +95,19 @@ public class GameTest {
     }
 
     @Test
-    public void respondToGameRequest_RespondBadFormatting_403GameNotStartedRequestStillThere() throws IOException {
+    public void respondToGameRequest_RespondBadFormatting_400GameNotStartedRequestStillThere() throws IOException {
     }
 
     @Test
-    public void respondToGameRequest_RespondNoRequest_403NoGameStarted() throws IOException {
+    public void respondToGameRequest_RespondNoRequest_404NoGameStarted() throws IOException {
     }
 
     @Test
-    public void respondToGameRequest_InvalidUser_403GameNotStartedRequestStillThere() throws IOException {
+    public void respondToGameRequest_InvalidUser_401GameNotStartedRequestStillThere() throws IOException {
     }
 
     @Test
-    public void respondToGameRequest_InvalidCredentials_403GameNotStartedRequestStillThere() throws IOException {
+    public void respondToGameRequest_InvalidCredentials_401GameNotStartedRequestStillThere() throws IOException {
     }
 
     //Check Incoming Game Request
@@ -128,11 +128,11 @@ public class GameTest {
     }
 
     @Test
-    public void checkIncomingGames_InvalidUser_403() throws IOException {
+    public void checkIncomingGames_InvalidUser_401() throws IOException {
     }
 
     @Test
-    public void checkIncomingGames_InvalidCredentials_403() throws IOException {
+    public void checkIncomingGames_InvalidCredentials_401() throws IOException {
     }
 
     //Check Outgoing Game Request
@@ -153,11 +153,11 @@ public class GameTest {
     }
 
     @Test
-    public void checkOutgoingGames_InvalidUser_403() throws IOException {
+    public void checkOutgoingGames_InvalidUser_401() throws IOException {
     }
 
     @Test
-    public void checkOutgoingGames_InvalidCredentials_403() throws IOException {
+    public void checkOutgoingGames_InvalidCredentials_401() throws IOException {
     }
 
     //Request a Random Game
@@ -198,19 +198,19 @@ public class GameTest {
     }
 
     @Test
-    public void requestRandomGame_InvalidUser_403() throws IOException {
+    public void requestRandomGame_InvalidUser_401() throws IOException {
     }
 
     @Test
-    public void requestRandomGame_InvalidCredentials_403() throws IOException {
+    public void requestRandomGame_InvalidCredentials_401() throws IOException {
     }
 
     @Test
-    public void requestRandomGame_GameSizeIllegalNumber_403() throws IOException {
+    public void requestRandomGame_GameSizeIllegalNumber_400() throws IOException {
     }
 
     @Test
-    public void requestRandomGame_GameSizeString_403() throws IOException {
+    public void requestRandomGame_GameSizeString_400() throws IOException {
     }
 
     //Cancel a Random Game Request
