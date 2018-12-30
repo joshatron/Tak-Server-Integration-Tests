@@ -390,4 +390,223 @@ public class HttpUtils {
 
         return client.execute(request);
     }
+
+    public static HttpResponse requestGame(String username, String password, String other, Integer size, String requesterColor, String first, HttpClient client) throws IOException {
+        boolean firstParam = true;
+        String payload = "{";
+        if(size != null) {
+            payload += "\"size\": " + size.toString();
+            firstParam = false;
+        }
+        if(requesterColor != null) {
+            if(!firstParam) {
+                payload += ",";
+            }
+            payload += "\"requesterColor\": \"" + requesterColor + "\"";
+            firstParam = false;
+        }
+        if(first != null) {
+            if(!firstParam) {
+                payload += ",";
+            }
+            payload += "\"first\": \"" + first + "\"";
+        }
+        payload += "}";
+
+        HttpPost request = new HttpPost(baseUrl + "/game/request/create/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse deleteGameRequest(String username, String password, String other, HttpClient client) throws IOException {
+        HttpDelete request = new HttpDelete(baseUrl + "/games/request/cancel/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse respondToGameRequest(String username, String password, String other, String response, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + response + "\"}";
+
+        HttpPost request = new HttpPost(baseUrl + "/games/request/respond/" + other);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse checkIncomingGameRequests(String username, String password, HttpClient client) throws IOException {
+        HttpGet request = new HttpGet(baseUrl + "/games/request/incoming");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse checkOutgoingGameRequests(String username, String password, HttpClient client) throws IOException {
+        HttpGet request = new HttpGet(baseUrl + "/games/request/outgoing");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse requestRandomGame(String username, String password, int size, HttpClient client) throws IOException {
+        HttpPost request = new HttpPost(baseUrl + "/games/request/random/create/" + size);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse deleteRandomGameRequest(String username, String password, HttpClient client) throws IOException {
+        HttpDelete request = new HttpDelete(baseUrl + "/games/request/random/cancel");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse getRandomRequestSize(String username, String password, HttpClient client) throws IOException {
+        HttpGet request = new HttpGet(baseUrl + "/games/request/random/outgoing");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse searchGames(String username, String password, String opponents, Date start, Date end, String complete, String pending, String sizes, String winner, String color, HttpClient client) throws IOException {
+        boolean first = true;
+        StringBuilder params = new StringBuilder("?");
+
+        if(opponents != null) {
+            params.append("opponents=");
+            params.append(opponents);
+            first = false;
+        }
+        if(start != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("start=");
+            params.append(start.getTime());
+            first = false;
+        }
+        if(end != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("end=");
+            params.append(end.getTime());
+            first = false;
+        }
+        if(complete != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("complete=");
+            params.append(complete);
+            first = false;
+        }
+        if(pending != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("pending=");
+            params.append(pending);
+            first = false;
+        }
+        if(sizes != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("sizes=");
+            params.append(sizes);
+            first = false;
+        }
+        if(winner != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("winner=");
+            params.append(winner);
+            first = false;
+        }
+        if(color != null) {
+            if(!first) {
+                params.append("&");
+            }
+            params.append("color=");
+            params.append(color);
+            first = false;
+        }
+
+        HttpGet request;
+        if(!first) {
+            request = new HttpGet(baseUrl + "/games/search" + params);
+        }
+        else {
+            request = new HttpGet(baseUrl + "/games/search");
+        }
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse getGame(String username, String gameId, String password, HttpClient client) throws IOException {
+        HttpGet request = new HttpGet(baseUrl + "/games/" + gameId);
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse getPossibleMoves(String username, String gameId, String password, HttpClient client) throws IOException {
+        HttpGet request = new HttpGet(baseUrl + "/games/" + gameId + "/possible");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse playTurn(String username, String gameId, String turn, String password, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + turn + "\"}";
+
+        HttpPost request = new HttpPost(baseUrl + "/games/" + gameId + "/play");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse getGameNotifications(String username, String password, HttpClient client) throws IOException {
+        HttpGet request = new HttpGet(baseUrl + "/games/notifications");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        return client.execute(request);
+    }
 }

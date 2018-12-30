@@ -13,7 +13,7 @@ import java.util.Date;
 
 public class GameUtils {
 
-    public static void requestGame(User requester, User other, int size, String requesterColor, String first, HttpClient client, int expected) throws IOException {
+    public static void requestGame(User requester, User other, Integer size, String requesterColor, String first, HttpClient client, int expected) throws IOException {
         HttpResponse response = HttpUtils.requestGame(requester.getUsername(), requester.getPassword(), other.getUserId(), size, requesterColor, first, client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
@@ -85,8 +85,8 @@ public class GameUtils {
         }
     }
 
-    public static JSONArray searchGames(User requester, String opponents, Date start, Date end, String complete, String pending, String sizes, String winner, String colors, HttpClient client, int expected, int numExpected) throws IOException {
-        HttpResponse response = HttpUtils.searchGames(requester.getUsername(), requester.getPassword(), opponents, start, end, complete, pending, sizes, winner, colors, client);
+    public static JSONArray searchGames(User requester, String opponents, Date start, Date end, String complete, String pending, String sizes, String winner, String color, HttpClient client, int expected, int numExpected) throws IOException {
+        HttpResponse response = HttpUtils.searchGames(requester.getUsername(), requester.getPassword(), opponents, start, end, complete, pending, sizes, winner, color, client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String contents = EntityUtils.toString(response.getEntity());
@@ -96,6 +96,8 @@ public class GameUtils {
                 return array;
             }
         }
+
+        return null;
     }
 
     public static void getGame(User requester, String gameId, HttpClient client, int expected, String expectedWhite, String expectedBlack, String[] expectedTurns) throws IOException {
@@ -108,7 +110,7 @@ public class GameUtils {
             Assert.assertEquals(expectedBlack, json.getString("black"));
             if(expectedTurns != null) {
                 JSONArray array = json.getJSONArray("turns");
-                for (int i = 0; i < expectedTurns.length) {
+                for (int i = 0; i < expectedTurns.length; i++) {
                     Assert.assertEquals(expectedTurns[i], array.getString(i));
                 }
             }
@@ -133,7 +135,7 @@ public class GameUtils {
     }
 
     public static void checkSocialNotifications(User user, HttpClient client, int expected, int expectedRequests, int expectedGames) throws IOException {
-        HttpResponse response = HttpUtils.getSocialNotifications(user.getUsername(), user.getPassword(), client);
+        HttpResponse response = HttpUtils.getGameNotifications(user.getUsername(), user.getPassword(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String contents = EntityUtils.toString(response.getEntity());
