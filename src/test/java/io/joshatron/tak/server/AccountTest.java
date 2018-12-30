@@ -52,8 +52,8 @@ public class AccountTest {
 
     @Test
     public void registerUser_BlankUsername_400UserNotCreated() throws IOException {
-        AccountUtils.addUser("", "", "", "password", client, HttpStatus.SC_BAD_REQUEST);
-        AccountUtils.addUser(null, null, null, "password", client, HttpStatus.SC_BAD_REQUEST);
+        AccountUtils.addUser("", "", "password", client, HttpStatus.SC_BAD_REQUEST);
+        AccountUtils.addUser(null, null, "password", client, HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
