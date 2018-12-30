@@ -11,18 +11,18 @@ import java.io.IOException;
 
 public class AccountUtils {
 
-    public static User addUser(String suite, String test, String user, String password, HttpClient client, int expected) throws IOException {
+    public static User addUser(String test, String user, String password, HttpClient client, int expected) throws IOException {
         HttpResponse response;
-        if(suite == null || test == null || user == null) {
+        if(test == null || user == null) {
             response = HttpUtils.createUser(null, password, client);
         }
         else {
-            response = HttpUtils.createUser(suite + test + user, password, client);
+            response = HttpUtils.createUser(test + user, password, client);
         }
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(expected == HttpStatus.SC_NO_CONTENT) {
-            UserInfo info = seachUsers(suite + test + user, null, client, HttpStatus.SC_OK);
-            User u = new User(suite + test + user, password, info.getUserId());
+            UserInfo info = seachUsers(test + user, null, client, HttpStatus.SC_OK);
+            User u = new User(test + user, password, info.getUserId());
             authenticate(u, client, HttpStatus.SC_NO_CONTENT);
 
             return u;

@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class RandomUtils {
 
-    public static String generateSuite(int length) {
+    public static String generateTest(int length) {
         Random rand = new Random();
         char[] letters = new char[]{'A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S',
                 'T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'};
