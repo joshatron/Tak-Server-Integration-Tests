@@ -1,4 +1,4 @@
-package io.joshatron.tak.server.utils;
+package io.joshatron.tak.server.logic.utils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -36,12 +36,12 @@ public class GameUtils {
             if (included != null && included.length > 0) {
                 for (User include : included) {
                     //Makes sure there is just one occurrence
-                    Assert.assertEquals(1, (contents.length() - contents.replace(include.getUsername(), "").length()) / include.getUsername().length());
+                    Assert.assertEquals(1, (contents.length() - contents.replace(include.getUserId(), "").length()) / include.getUsername().length());
                 }
             }
             if (excluded != null && excluded.length > 0) {
                 for (User exclude : excluded) {
-                    Assert.assertFalse(contents.contains(exclude.getUsername()));
+                    Assert.assertFalse(contents.contains(exclude.getUserId()));
                 }
             }
         }

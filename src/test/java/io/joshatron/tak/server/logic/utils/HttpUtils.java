@@ -1,11 +1,10 @@
-package io.joshatron.tak.server.utils;
+package io.joshatron.tak.server.logic.utils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -413,7 +412,7 @@ public class HttpUtils {
         }
         payload += "}";
 
-        HttpPost request = new HttpPost(baseUrl + "/game/request/create/" + other);
+        HttpPost request = new HttpPost(baseUrl + "/games/request/create/" + other);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }

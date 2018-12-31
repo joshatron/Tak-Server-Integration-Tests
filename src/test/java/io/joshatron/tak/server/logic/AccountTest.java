@@ -1,6 +1,10 @@
-package io.joshatron.tak.server;
+package io.joshatron.tak.server.logic;
 
-import io.joshatron.tak.server.utils.*;
+import io.joshatron.tak.server.logic.utils.AccountUtils;
+import io.joshatron.tak.server.logic.utils.HttpUtils;
+import io.joshatron.tak.server.logic.utils.RandomUtils;
+import io.joshatron.tak.server.logic.utils.User;
+import io.joshatron.tak.server.logic.utils.UserInfo;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.junit.Assert;

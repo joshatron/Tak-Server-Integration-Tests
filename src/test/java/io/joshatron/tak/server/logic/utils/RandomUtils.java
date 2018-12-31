@@ -1,4 +1,4 @@
-package io.joshatron.tak.server.utils;
+package io.joshatron.tak.server.logic.utils;
 
 import java.util.Random;
 

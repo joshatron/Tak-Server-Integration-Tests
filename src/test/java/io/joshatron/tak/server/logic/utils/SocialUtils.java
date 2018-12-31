@@ -1,4 +1,4 @@
-package io.joshatron.tak.server.utils;
+package io.joshatron.tak.server.logic.utils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

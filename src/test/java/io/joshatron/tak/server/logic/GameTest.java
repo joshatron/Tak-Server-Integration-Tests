@@ -1,7 +1,7 @@
-package io.joshatron.tak.server;
+package io.joshatron.tak.server.logic;
 
-import io.joshatron.tak.server.utils.HttpUtils;
-import io.joshatron.tak.server.utils.RandomUtils;
+import io.joshatron.tak.server.logic.utils.*;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,42 +26,99 @@ public class GameTest {
     //Request a Game
     @Test
     public void requestGame_RequestFriend_204RequestMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
     @Test
     public void requestGame_RequestNonFriend_403RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_FORBIDDEN);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     @Test
     public void requestGame_RequestPendingFriend_403RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_FORBIDDEN);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     @Test
     public void requestGame_RequestBlocked_403RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user2, user1, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_FORBIDDEN);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     @Test
     public void requestGame_RequestNonexistent_404RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NOT_FOUND);
+        GameUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, null, new User[]{user3});
     }
 
     @Test
     public void requestGame_RequestWithExistingRequest_403RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_FORBIDDEN);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
     @Test
     public void requestGame_RequestYourself_403RequestNotMade() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user, user, 6, "BLACK", "BLACK", client, HttpStatus.SC_FORBIDDEN);
+        GameUtils.checkOutgoing(user, client, HttpStatus.SC_OK, null, new User[]{user});
     }
 
     @Test
     public void requestGame_RequestExistingGame_403RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_FORBIDDEN);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     @Test
     public void requestGame_InvalidUser_401RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        GameUtils.requestGame(user3, user1, 5, "WHITE", "WHITE", client, HttpStatus.SC_UNAUTHORIZED);
+        GameUtils.checkIncoming(user1, client, HttpStatus.SC_OK, null, new User[]{user3});
     }
 
     @Test
     public void requestGame_InvalidCredentials_401RequestNotMade() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        user1.setPassword("drowssap");
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_UNAUTHORIZED);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     //Cancel a Game Request
