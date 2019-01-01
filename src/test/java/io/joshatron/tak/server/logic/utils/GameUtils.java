@@ -55,12 +55,12 @@ public class GameUtils {
             if (included != null && included.length > 0) {
                 for (User include : included) {
                     //Makes sure there is just one occurrence
-                    Assert.assertEquals(1, (contents.length() - contents.replace(include.getUsername(), "").length()) / include.getUsername().length());
+                    Assert.assertEquals(1, (contents.length() - contents.replace(include.getUserId(), "").length()) / include.getUsername().length());
                 }
             }
             if (excluded != null && excluded.length > 0) {
                 for (User exclude : excluded) {
-                    Assert.assertFalse(contents.contains(exclude.getUsername()));
+                    Assert.assertFalse(contents.contains(exclude.getUserId()));
                 }
             }
         }
@@ -98,6 +98,11 @@ public class GameUtils {
         }
 
         return null;
+    }
+
+    public static JSONArray searchAllGames(User requester, HttpClient client, int expected, int numExpected) throws IOException {
+        return searchGames(requester, null, null, null, null, null, null, null, null,
+                           client, expected, numExpected);
     }
 
     public static void getGame(User requester, String gameId, HttpClient client, int expected, String expectedWhite, String expectedBlack, String[] expectedTurns) throws IOException {

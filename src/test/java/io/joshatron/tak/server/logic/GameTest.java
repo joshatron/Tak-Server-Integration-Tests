@@ -124,97 +124,258 @@ public class GameTest {
     //Cancel a Game Request
     @Test
     public void cancelGameRequest_BasicRequest_204RequestRemoved() throws IOException {
-    }
-
-    @Test
-    public void cancelGameRequest_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.deleteGameRequest(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     @Test
     public void cancelGameRequest_CancelInvalidUser_404() throws IOException {
-    }
-
-    @Test
-    public void cancelGameRequest_InvalidCredentials_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.deleteGameRequest(user1, user3, client, HttpStatus.SC_NOT_FOUND);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
     @Test
     public void cancelGameRequest_RequestNotMade_404() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.deleteGameRequest(user1, user2, client, HttpStatus.SC_NOT_FOUND);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
+    }
+
+    @Test
+    public void cancelGameRequest_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.deleteGameRequest(user3, user2, client, HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void cancelGameRequest_InvalidCredentials_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        user1.setPassword("drowssap");
+        GameUtils.deleteGameRequest(user1, user2, client, HttpStatus.SC_UNAUTHORIZED);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
     //Respond to Game Request
     @Test
     public void respondToGameRequest_RespondAccept_204GameStartedRequestRemoved() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
     public void respondToGameRequest_RespondDeny_204GameNotStartedRequestRemoved() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "DENY", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
     public void respondToGameRequest_RespondBadFormatting_400GameNotStartedRequestStillThere() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "INVALID", client, HttpStatus.SC_BAD_REQUEST);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
     public void respondToGameRequest_RespondNoRequest_404NoGameStarted() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NOT_FOUND);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
     public void respondToGameRequest_InvalidUser_401GameNotStartedRequestStillThere() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_UNAUTHORIZED);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
     public void respondToGameRequest_InvalidCredentials_401GameNotStartedRequestStillThere() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        user2.setPassword("drowssap");
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_UNAUTHORIZED);
+        user2.setPassword("password");
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
     //Check Incoming Game Request
     @Test
     public void checkIncomingGames_NoRequests_200EmptyArray() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user, client, HttpStatus.SC_OK, null, null);
     }
 
     @Test
     public void checkIncomingGames_OneRequest_200ArrayWithOne() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
     @Test
     public void checkIncomingGames_MultipleRequests_200ArrayWithMultiple() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user3, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user3, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user3, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1, user3}, null);
     }
 
     @Test
     public void checkIncomingGames_OneOutgoing_200EmptyArray() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
     @Test
     public void checkIncomingGames_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkIncoming(user3, client, HttpStatus.SC_UNAUTHORIZED, null, new User[]{user2, user1});
     }
 
     @Test
     public void checkIncomingGames_InvalidCredentials_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        user2.setPassword("drowssap");
+        GameUtils.checkIncoming(user2, client, HttpStatus.SC_UNAUTHORIZED, null, new User[]{user1});
     }
 
     //Check Outgoing Game Request
     @Test
     public void checkOutgoingGames_NoRequests_200EmptyArray() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkOutgoing(user, client, HttpStatus.SC_OK, null, null);
     }
 
     @Test
     public void checkOutgoingGames_200ArrayWithOne() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
     @Test
     public void checkOutgoingGames_200ArrayWithMultiple() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, new User[]{user2, user3}, null);
     }
 
     @Test
     public void checkOutgoingGames_OneIncoming_200EmptyArray() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkOutgoing(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
     @Test
     public void checkOutgoingGames_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkOutgoing(user3, client, HttpStatus.SC_UNAUTHORIZED, null, new User[]{user2, user1});
     }
 
     @Test
     public void checkOutgoingGames_InvalidCredentials_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        user1.setPassword("drowssap");
+        GameUtils.checkOutgoing(user1, client, HttpStatus.SC_UNAUTHORIZED, null, new User[]{user2});
     }
 
     //Request a Random Game
