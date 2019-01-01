@@ -381,71 +381,176 @@ public class GameTest {
     //Request a Random Game
     @Test
     public void requestRandomGame_OneRequest_204NoGameCreated() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user, client, HttpStatus.SC_OK, 0);
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     @Test
     public void requestRandomGame_TwoMatchingRequests_204GameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 1);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
     @Test
     public void requestRandomGame_TwoMismatchingRequests_204NoGameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 6, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 0);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
     @Test
     public void requestRandomGame_TwoMatchingAlreadyInGame_204NoGameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 1);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
     @Test
     public void requestRandomGame_TwoFriendsMatching_204GameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 1);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
     @Test
     public void requestRandomGame_TwoRandomMatching_204GameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 1);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
     @Test
     public void requestRandomGame_TwoMatchingBlocked_204NoGameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 0);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
     @Test
     public void requestRandomGame_TwoMismatchThenThirdMatch_204OneGameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 3, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user3, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1);
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
+        GameUtils.searchAllGames(user3, client, HttpStatus.SC_OK, 1);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
+        GameUtils.rawDeleteRandomGameRequest(user3, client);
     }
 
     @Test
     public void requestRandomGame_TwoBlockedMatchedThenNonBlockMatch_204OneGameCreated() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user2, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user3, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user3, client, HttpStatus.SC_OK, 1);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
+        GameUtils.rawDeleteRandomGameRequest(user2, client);
+        GameUtils.rawDeleteRandomGameRequest(user3, client);
     }
 
     @Test
     public void requestRandomGame_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(test + "02", "password");
+        GameUtils.requestRandomGame(user2, 3, client, HttpStatus.SC_UNAUTHORIZED);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
     }
 
     @Test
     public void requestRandomGame_InvalidCredentials_401() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_UNAUTHORIZED);
+        user.setPassword("password");
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     @Test
     public void requestRandomGame_GameSizeIllegalNumber_400() throws IOException {
-    }
-
-    @Test
-    public void requestRandomGame_GameSizeString_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user, 7, client, HttpStatus.SC_BAD_REQUEST);
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     //Cancel a Random Game Request
     @Test
     public void cancelRandomRequest_BasicRequest_204RequestRemoved() throws IOException {
-    }
-
-    @Test
-    public void cancelRandomRequest_InvalidUser_401() throws IOException {
-    }
-
-    @Test
-    public void cancelRandomRequest_InvalidCredentials_401() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user, 3, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.deleteRandomGameRequest(user, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     @Test
     public void cancelRandomRequest_RequestNotMade_404() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.deleteRandomGameRequest(user, client, HttpStatus.SC_NOT_FOUND);
+    }
+
+    @Test
+    public void cancelRandomRequest_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(test + "02", "password");
+        GameUtils.deleteRandomGameRequest(user2, client, HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void cancelRandomRequest_InvalidCredentials_401() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user, 3, client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        GameUtils.deleteRandomGameRequest(user, client, HttpStatus.SC_UNAUTHORIZED);
+        user.setPassword("password");
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     //Check Random Game Request

@@ -76,6 +76,10 @@ public class GameUtils {
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
+    public static void rawDeleteRandomGameRequest(User requester, HttpClient client) throws IOException {
+        HttpUtils.deleteRandomGameRequest(requester.getUsername(), requester.getPassword(), client);
+    }
+
     public static void getRandomRequestSize(User requester, HttpClient client, int expected, int expectedSize) throws IOException {
         HttpResponse response = HttpUtils.getRandomRequestSize(requester.getUsername(), requester.getPassword(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
