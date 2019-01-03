@@ -556,18 +556,36 @@ public class GameTest {
     //Check Random Game Request
     @Test
     public void checkRandomRequest_BasicRequest_200Size() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getRandomRequestSize(user, client, HttpStatus.SC_OK, 5);
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     @Test
     public void checkRandomRequest_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(test + "02", "password");
+        GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getRandomRequestSize(user2, client, HttpStatus.SC_UNAUTHORIZED, 0);
+        GameUtils.rawDeleteRandomGameRequest(user1, client);
     }
 
     @Test
     public void checkRandomRequest_InvalidCredentials_401() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        GameUtils.getRandomRequestSize(user, client, HttpStatus.SC_UNAUTHORIZED, 0);
+        user.setPassword("password");
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     @Test
     public void checkRandomRequest_RequestNotMade_404() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getRandomRequestSize(user, client, HttpStatus.SC_NOT_FOUND, 0);
+        GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
     //List Games
