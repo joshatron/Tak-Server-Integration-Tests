@@ -661,22 +661,70 @@ public class GameTest {
     //Get Info on a Game
     @Test
     public void getGame_ValidGame_200GameInfo() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        String turn = "ps a1";
+        GameUtils.playTurn(user1, gameId, turn, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{turn});
     }
 
     @Test
-    public void getGame_NotYourGame_403() throws IOException {
+    public void getGame_NotYourGame_404() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.getGame(user3, gameId, client, HttpStatus.SC_NOT_FOUND, null, null, null);
     }
 
     @Test
-    public void getGame_NotRealGame_403() throws IOException {
+    public void getGame_NotRealGame_404() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getGame(user1, "0000000000000000000000000", client, HttpStatus.SC_NOT_FOUND, null, null, null);
     }
 
     @Test
-    public void getGame_InvalidUser_403() throws IOException {
+    public void getGame_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        String turn = "ps a1";
+        GameUtils.playTurn(user1, gameId, turn, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getGame(user3, gameId, client, HttpStatus.SC_UNAUTHORIZED, null, null, null);
     }
 
     @Test
-    public void getGame_InvalidCredentials_403() throws IOException {
+    public void getGame_InvalidCredentials_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        String turn = "ps a1";
+        GameUtils.playTurn(user1, gameId, turn, client, HttpStatus.SC_NO_CONTENT);
+        user1.setPassword("drowssap");
+        GameUtils.getGame(user1, gameId, client, HttpStatus.SC_UNAUTHORIZED, null, null, null);
     }
 
     //Get Possible Next Turns For Game

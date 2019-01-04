@@ -109,14 +109,14 @@ public class GameUtils {
                            client, expected, numExpected);
     }
 
-    public static void getGame(User requester, String gameId, HttpClient client, int expected, String expectedWhite, String expectedBlack, String[] expectedTurns) throws IOException {
+    public static void getGame(User requester, String gameId, HttpClient client, int expected, User expectedWhite, User expectedBlack, String[] expectedTurns) throws IOException {
         HttpResponse response = HttpUtils.getGame(requester.getUsername(), gameId, requester.getPassword(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String contents = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(contents);
-            Assert.assertEquals(expectedWhite, json.getString("white"));
-            Assert.assertEquals(expectedBlack, json.getString("black"));
+            Assert.assertEquals(expectedWhite.getUserId(), json.getString("white"));
+            Assert.assertEquals(expectedBlack.getUserId(), json.getString("black"));
             if(expectedTurns != null) {
                 JSONArray array = json.getJSONArray("turns");
                 for (int i = 0; i < expectedTurns.length; i++) {

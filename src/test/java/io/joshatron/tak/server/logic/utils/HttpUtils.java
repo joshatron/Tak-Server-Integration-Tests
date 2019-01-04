@@ -570,7 +570,7 @@ public class HttpUtils {
     }
 
     public static HttpResponse getGame(String username, String gameId, String password, HttpClient client) throws IOException {
-        HttpGet request = new HttpGet(baseUrl + "/games/" + gameId);
+        HttpGet request = new HttpGet(baseUrl + "/games/game/" + gameId);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
@@ -579,7 +579,7 @@ public class HttpUtils {
     }
 
     public static HttpResponse getPossibleMoves(String username, String gameId, String password, HttpClient client) throws IOException {
-        HttpGet request = new HttpGet(baseUrl + "/games/" + gameId + "/possible");
+        HttpGet request = new HttpGet(baseUrl + "/games/game/" + gameId + "/possible");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
@@ -590,7 +590,7 @@ public class HttpUtils {
     public static HttpResponse playTurn(String username, String gameId, String turn, String password, HttpClient client) throws IOException {
         String payload = "{\"text\": \"" + turn + "\"}";
 
-        HttpPost request = new HttpPost(baseUrl + "/games/" + gameId + "/play");
+        HttpPost request = new HttpPost(baseUrl + "/games/game/" + gameId + "/play");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
