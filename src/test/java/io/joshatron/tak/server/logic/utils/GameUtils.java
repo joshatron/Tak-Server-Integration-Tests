@@ -123,6 +123,12 @@ public class GameUtils {
                     Assert.assertEquals(expectedTurns[i], array.getString(i));
                 }
             }
+            else {
+                JSONArray array = json.getJSONArray("turns");
+                if(array != null) {
+                    Assert.assertEquals(0, array.length());
+                }
+            }
         }
     }
 
