@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 //Suite: C
 public class GameTest {
@@ -16,6 +18,19 @@ public class GameTest {
 
     public GameTest() throws IOException {
         client = HttpUtils.createHttpClient();
+    }
+
+    private String playSimpleGame(User user1, User user2, String requesterColor, String first) throws IOException {
+        GameUtils.requestGame(user1, user2, 3, requesterColor, first, client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchGames(user1, user2.getUserId(), null, null, "INCOMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.playTurn(user1, gameId, "ps b1", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user2, gameId, "ps a1", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user1, gameId, "ps a2", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user2, gameId, "ps b2", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user1, gameId, "ps a3", client, HttpStatus.SC_NO_CONTENT);
+
+        return gameId;
     }
 
     @Before
@@ -589,73 +604,482 @@ public class GameTest {
     }
 
     //List Games
-    //TODO: review
     @Test
-    public void listGames_NoGames_200EmptyArray() throws IOException {
+    public void listGames_NoParametersNoGames_200EmptyArray() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void listGames_OneGame_200ArrayWithOne() throws IOException {
+    public void listGames_NoParametersOneGame_200ArrayWithOne() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void listGames_MultipleGames_200ArrayWithMultiple() throws IOException {
+    public void listGames_NoParametersMultipleGames_200ArrayWithMultiple() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 2);
     }
 
     @Test
-    public void listGames_GameInProgress_200EmptyArray() throws IOException {
+    public void listGames_AllParameters_200ArrayWithSelected() throws IOException, InterruptedException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        playSimpleGame(user1, user2, "BLACK", "BLACK");
+        Date start = new Date();
+        Thread.sleep(2000);
+        playSimpleGame(user1, user2, "WHITE", "WHITE");
+        playSimpleGame(user2, user1, "WHITE", "WHITE");
+        playSimpleGame(user1, user3, "BLACK", "BLACK");
+        playSimpleGame(user1, user2, "BLACK", "BLACK");
+        Date end = new Date();
+        Thread.sleep(2000);
+        playSimpleGame(user1, user2, "BLACK", "BLACK");
+        GameUtils.searchGames(user1, user2.getUserId(), start, end, "COMPLETE", null, "3", "ME", "BLACK", client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void listGames_OneOpponent_200GamesFromOpponent() throws IOException {
+    public void listGames_ValidOpponents_200ArrayWithOpponents() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, user3.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test
-    public void listGames_MultipleOpponents_200GamesFromMultipleOpponents() throws IOException {
+    public void listGames_InvalidOpponents_404EmptyArray() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, user3.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
     @Test
-    public void listGames_StartInPast_200GamesFromPastOn() throws IOException {
+    public void listGames_InvalidAndValidOpponents_404ArrayWithValid() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, user3.getUserId() + "," + user2.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 1);
     }
 
     @Test
-    public void listGames_StartInCurrent_200EmptyGames() throws IOException {
+    public void listGames_OpponentWithNoGame_200EmptyArray() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, user2.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void listGames_StartInFuture_403() throws IOException {
+    public void listGames_StartInPast_200GamesFromPastOn() throws IOException, InterruptedException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        Date start = new Date();
+        Thread.sleep(2000);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, start, null, null, null, null, null, null, client, HttpStatus.SC_OK, 2);
+    }
+
+    @Test
+    public void listGames_StartInCurrent_200EmptyArray() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        Date start = new Date();
+        GameUtils.searchGames(user1, null, start, null, null, null, null, null, null, client, HttpStatus.SC_OK, 0);
+    }
+
+    @Test
+    public void listGames_StartInFuture_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        GameUtils.searchGames(user, null, calendar.getTime(), null, null, null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
+    }
+
+    @Test
+    public void listGames_EndTimeNormal_200GamesBeforeTime() throws IOException, InterruptedException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        Date end = new Date();
+        Thread.sleep(2000);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, end, null, null, null, null, null, client, HttpStatus.SC_OK, 1);
+    }
+
+    @Test
+    public void listGames_EndTimeBeforeAll_200EmptyArray() throws IOException, InterruptedException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        Date end = new Date();
+        Thread.sleep(2000);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, end, null, null, null, null, null, client, HttpStatus.SC_OK, 0);
+    }
+
+    @Test
+    public void listGames_EndTimeInFuture_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        GameUtils.searchGames(user, null, null, calendar.getTime(), null, null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
+    }
+
+    @Test
+    public void listGames_StartAndEnd_200GamesBetween() throws IOException, InterruptedException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user5 = AccountUtils.addUser(test, "05", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user5, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user5, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        Date start = new Date();
+        Thread.sleep(2000);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        Date end = new Date();
+        Thread.sleep(2000);
+        GameUtils.requestGame(user1, user5, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user5, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, start, end, null, null, null, null, null, client, HttpStatus.SC_OK, 2);
+    }
+
+    @Test
+    public void listGames_StartAfterEnd_400() throws IOException, InterruptedException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        Date end = new Date();
+        Thread.sleep(2000);
+        Date start = new Date();
+        GameUtils.searchGames(user1, null, start, end, null, null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
+    }
+
+    @Test
+    public void listGames_CompleteGames_200OnlyComplete() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        playSimpleGame(user1, user3, "WHITE", "WHITE");
+        playSimpleGame(user1, user4, "WHITE", "WHITE");
+        GameUtils.searchGames(user1, null, null, null, "COMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 2);
+    }
+
+    @Test
+    public void listGames_IncompleteGames_200OnlyIncomplete() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        playSimpleGame(user1, user3, "WHITE", "WHITE");
+        playSimpleGame(user1, user4, "WHITE", "WHITE");
+        GameUtils.searchGames(user1, null, null, null, "INCOMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 1);
+    }
+
+    @Test
+    public void listGames_InvalidCompleteGames_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user, null, null, null, "YES", null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
+    }
+
+    @Test
+    public void listGames_PendingGames_200OnlyPending() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 5, "WHITE", "BLACK", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, null, null, "PENDING", null, null, null, client, HttpStatus.SC_OK, 2);
+    }
+
+    @Test
+    public void listGames_NotPendingGames_200OnlyNotPending() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 5, "WHITE", "BLACK", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, null, null, "NOT_PENDING", null, null, null, client, HttpStatus.SC_OK, 1);
+    }
+
+    @Test
+    public void listGames_InvalidPendingGames_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user, null, null, null, null, "YES", null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
+    }
+
+    @Test
+    public void listGames_WinnerGames_200OnlyWinner() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        playSimpleGame(user1, user2, "WHITE", "WHITE");
+        playSimpleGame(user1, user3, "WHITE", "WHITE");
+        playSimpleGame(user4, user1, "WHITE", "WHITE");
+        GameUtils.searchGames(user1, null, null, null, null, null, null, "ME", null, client, HttpStatus.SC_OK, 2);
+    }
+
+    @Test
+    public void listGames_NotWinnerGames_200OnlyNotWinner() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        playSimpleGame(user1, user2, "WHITE", "WHITE");
+        playSimpleGame(user1, user3, "WHITE", "WHITE");
+        playSimpleGame(user4, user1, "WHITE", "WHITE");
+        GameUtils.searchGames(user1, null, null, null, null, null, null, "THEM", null, client, HttpStatus.SC_OK, 1);
+    }
+
+    @Test
+    public void listGames_InvalidWinnerGames_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user, null, null, null, null, null, null, "NO_ONE", null, client, HttpStatus.SC_BAD_REQUEST, 0);
+    }
+
+    @Test
+    public void listGames_WhiteGames_200OnlyWhite() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 5, "BLACK", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, null, null, null, null, null, "WHITE", client, HttpStatus.SC_OK, 2);
+    }
+
+    @Test
+    public void listGames_BlackGames_200OnlyBlack() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 5, "BLACK", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, null, null, null, null, null, "BLACK", client, HttpStatus.SC_OK, 1);
+    }
+
+    @Test
+    public void listGames_InvalidColorGames_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user, null, null, null, null, null, null, null, "GRAY", client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_OneSize_200GamesWithSize() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 3, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, null, null, null, "5", null, null, client, HttpStatus.SC_OK, 2);
     }
 
     @Test
-    public void listGames_SizeBadNumber_403() throws IOException {
+    public void listGames_MultipleSizes_200GamesWithAllSize() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user4 = AccountUtils.addUser(test, "04", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user4, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user4, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user3, 4, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user3, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user4, 3, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user4, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user1, null, null, null, null, null, "5,4", null, null, client, HttpStatus.SC_OK, 2);
+    }
+
+    @Test
+    public void listGames_SizeBadNumber_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user, null, null, null, null, null, "7", null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
+    }
+
+    @Test
+    public void listGames_GoodAndBadSizes_400() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.searchGames(user, null, null, null, null, null, "7,5", null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_InvalidUser_403() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(test + "02", "password");
+        GameUtils.searchAllGames(user2, client, HttpStatus.SC_UNAUTHORIZED, 0);
     }
 
     @Test
     public void listGames_InvalidCredentials_403() throws IOException {
-    }
-
-    @Test
-    public void listGames_CompleteGame_200EmptyArray() throws IOException {
-    }
-
-    @Test
-    public void listGames_Pending_200OnlyPending() throws IOException {
-    }
-
-    @Test
-    public void listGames_NotPending_200OnlyNotPending() throws IOException {
-    }
-
-    @Test
-    public void listGames_InvalidPending_403() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        GameUtils.searchAllGames(user, client, HttpStatus.SC_UNAUTHORIZED, 0);
     }
 
     //Get Info on a Game
@@ -758,14 +1182,7 @@ public class GameTest {
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.requestGame(user1, user2, 3, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
-        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
-        GameUtils.playTurn(user1, gameId, "ps b1", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.playTurn(user2, gameId, "ps a1", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.playTurn(user1, gameId, "ps a2", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.playTurn(user2, gameId, "ps b2", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.playTurn(user1, gameId, "ps a3", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = playSimpleGame(user1, user2, "WHITE", "WHITE");
         GameUtils.getPossibleMoves(user1, gameId, client, HttpStatus.SC_OK, 0);
         GameUtils.getPossibleMoves(user2, gameId, client, HttpStatus.SC_OK, 0);
     }

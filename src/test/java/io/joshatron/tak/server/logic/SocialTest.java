@@ -868,7 +868,7 @@ public class SocialTest {
     }
 
     @Test
-    public void searchMessages_StartAtFuture_403() throws IOException {
+    public void searchMessages_StartAtFuture_400() throws IOException {
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
@@ -1055,7 +1055,6 @@ public class SocialTest {
 
     @Test
     public void markRead_IdsAndSenders_204SpecifiedMessagesRead() throws IOException, InterruptedException {
-        //TODO: implement
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
