@@ -148,8 +148,8 @@ public class SocialUtils {
         return searchMessages(user, null, null, null, null, null, client, expected, numExpected);
     }
 
-    public static void markMessagesRead(User user, String[] ids, Date start, HttpClient client, int expected) throws IOException {
-        HttpResponse response = HttpUtils.markRead(user.getUsername(), user.getPassword(), ids, start, client);
+    public static void markMessagesRead(User user, String[] ids, User[] senders, HttpClient client, int expected) throws IOException {
+        HttpResponse response = HttpUtils.markRead(user.getUsername(), user.getPassword(), ids, senders, client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 

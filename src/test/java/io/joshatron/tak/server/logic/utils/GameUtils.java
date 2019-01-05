@@ -143,7 +143,7 @@ public class GameUtils {
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
     }
 
-    public static void checkSocialNotifications(User user, HttpClient client, int expected, int expectedRequests, int expectedGames) throws IOException {
+    public static void checkGameNotifications(User user, HttpClient client, int expected, int expectedRequests, int expectedGames) throws IOException {
         HttpResponse response = HttpUtils.getGameNotifications(user.getUsername(), user.getPassword(), client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

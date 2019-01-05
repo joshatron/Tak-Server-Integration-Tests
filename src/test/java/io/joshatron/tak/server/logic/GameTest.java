@@ -730,30 +730,89 @@ public class GameTest {
     //Get Possible Next Turns For Game
     @Test
     public void getPossibleTurns_YourTurn_200PossibleTurns() throws IOException {
-    }
-
-    @Test
-    public void getPossibleTurns_FinishedGame_200Empty() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.getPossibleMoves(user1, gameId, client, HttpStatus.SC_OK, 25);
     }
 
     @Test
     public void getPossibleTurns_TheirTurn_403() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.getPossibleMoves(user2, gameId, client, HttpStatus.SC_FORBIDDEN, 0);
     }
 
     @Test
-    public void getPossibleTurns_NotYourGame_403() throws IOException {
+    public void getPossibleTurns_FinishedGame_200Empty() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 3, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.playTurn(user1, gameId, "ps b1", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user2, gameId, "ps a1", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user1, gameId, "ps a2", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user2, gameId, "ps b2", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.playTurn(user1, gameId, "ps a3", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getPossibleMoves(user1, gameId, client, HttpStatus.SC_OK, 0);
+        GameUtils.getPossibleMoves(user2, gameId, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
-    public void getPossibleTurns_InvalidGame_403() throws IOException {
+    public void getPossibleTurns_NotYourGame_404() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.getPossibleMoves(user3, gameId, client, HttpStatus.SC_NOT_FOUND, 0);
+    }
+
+    @Test
+    public void getPossibleTurns_InvalidGame_404() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.getPossibleMoves(user1, "0000000000000000000000000", client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
     @Test
     public void getPossibleTurns_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.getPossibleMoves(user3, gameId, client, HttpStatus.SC_UNAUTHORIZED, 0);
     }
 
     @Test
     public void getPossibleTurns_InvalidCredential_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        user1.setPassword("drowssap");
+        GameUtils.getPossibleMoves(user1, gameId, client, HttpStatus.SC_UNAUTHORIZED, 0);
     }
 
     //Play Turn
@@ -796,29 +855,70 @@ public class GameTest {
     //Get Notifications
     @Test
     public void getNotifications_NoRequests_200RequestsFieldZero() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkGameNotifications(user1, client, HttpStatus.SC_OK, 0, 0);
     }
 
     @Test
     public void getNotifications_NonZeroRequests_200RequestsFieldMoreThanZero() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_OK, 1, 0);
     }
 
     @Test
     public void getNotifications_NoGames_200YourTurnFieldZero() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_OK, 0, 0);
     }
 
     @Test
     public void getNotifications_GamesNoneYourTurn_200YourTurnFieldZero() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_OK, 0, 0);
     }
 
     @Test
     public void getNotifications_GamesSomeYourTurn_200YourTurnFieldOnlyYourTurn() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user3, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user3, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user3, user1, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user1, user3, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.checkGameNotifications(user1, client, HttpStatus.SC_OK, 0, 1);
     }
 
     @Test
     public void getNotifications_InvalidUser_401() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = new User(test + "02", "password");
+        GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_UNAUTHORIZED, 0, 0);
     }
 
     @Test
     public void getNotifications_InvalidCredential_401() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        GameUtils.checkGameNotifications(user, client, HttpStatus.SC_UNAUTHORIZED, 0, 0);
     }
 }

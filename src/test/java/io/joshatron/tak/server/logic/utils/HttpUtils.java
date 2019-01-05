@@ -346,7 +346,7 @@ public class HttpUtils {
         return client.execute(request);
     }
 
-    public static HttpResponse markRead(String username, String password, String[] ids, Date start, HttpClient client) throws IOException {
+    public static HttpResponse markRead(String username, String password, String[] ids, User[] senders, HttpClient client) throws IOException {
         StringBuilder payload = new StringBuilder("{");
         if(ids != null) {
             payload.append("\"ids\": [");
@@ -361,13 +361,23 @@ public class HttpUtils {
                 first = false;
             }
             payload.append("]");
-            if(start != null) {
+            if(senders != null && senders.length > 0) {
                 payload.append(",");
             }
         }
-        if(start != null) {
-            payload.append("\"start\": ");
-            payload.append(start.getTime());
+        if(senders != null && senders.length > 0) {
+            payload.append("\"senders\": [");
+            boolean first = true;
+            for(User sender : senders) {
+                if(!first) {
+                    payload.append(",");
+                }
+                payload.append("\"");
+                payload.append(sender.getUserId());
+                payload.append("\"");
+                first = false;
+            }
+            payload.append("]");
         }
         payload.append("}");
 

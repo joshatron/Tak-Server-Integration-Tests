@@ -1043,28 +1043,27 @@ public class SocialTest {
     }
 
     @Test
-    public void markRead_StartTime_204SpecifiedMessagesRead() throws IOException, InterruptedException {
+    public void markRead_Senders_204SpecifiedMessagesRead() throws IOException {
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
-        Date now = new Date();
-        Thread.sleep(2000);
-        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.markMessagesRead(user1, null, now, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user3, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, new User[]{user2}, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 1);
     }
 
     @Test
-    public void markRead_IdsAndStartTime_204SpecifiedMessagesRead() throws IOException, InterruptedException {
+    public void markRead_IdsAndSenders_204SpecifiedMessagesRead() throws IOException, InterruptedException {
+        //TODO: implement
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
         JSONArray array = SocialUtils.searchAllMessages(user1, client, HttpStatus.SC_OK, 1);
-        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
-        Date now = new Date();
-        Thread.sleep(2000);
+        SocialUtils.sendMessage(user3, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world the last", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.markMessagesRead(user1, new String[]{array.getJSONObject(0).getString("id")}, now, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, new String[]{array.getJSONObject(0).getString("id")}, new User[]{user3}, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 1);
     }
 
@@ -1075,6 +1074,17 @@ public class SocialTest {
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.markMessagesRead(user1, new String[]{"00000000000000000000"}, null, client, HttpStatus.SC_NOT_FOUND);
+        SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 2);
+    }
+
+    @Test
+    public void markRead_InvalidSenders_404() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, new User[]{user3}, client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 2);
     }
 
@@ -1090,15 +1100,14 @@ public class SocialTest {
     }
 
     @Test
-    public void markRead_StartTimeAfterNow_400() throws IOException {
+    public void markRead_InvalidAndValidSenders_404AllValidMarked() throws IOException {
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = new User(test + "03", "password");
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        SocialUtils.markMessagesRead(user1, null, calendar.getTime(), client, HttpStatus.SC_BAD_REQUEST);
-        SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 2);
+        SocialUtils.markMessagesRead(user1, null, new User[]{user2, user3}, client, HttpStatus.SC_NOT_FOUND);
+        SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 0);
     }
 
     @Test
@@ -1121,6 +1130,17 @@ public class SocialTest {
         SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
         JSONArray array = SocialUtils.searchAllMessages(user1, client, HttpStatus.SC_OK, 2);
         SocialUtils.markMessagesRead(user2, new String[]{array.getJSONObject(0).getString("id")}, null, client, HttpStatus.SC_FORBIDDEN);
+        SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 2);
+    }
+
+    @Test
+    public void markRead_SenderNoMessages_204NothingMarked() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.markMessagesRead(user1, null, new User[]{user3}, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkSocialNotifications(user1, client, HttpStatus.SC_OK, 0, 2);
     }
 
