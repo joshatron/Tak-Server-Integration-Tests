@@ -224,7 +224,7 @@ public class HttpUtils {
     }
 
     public static HttpResponse unfriendUser(String username, String password, String other, HttpClient client) throws IOException {
-        HttpPost request = new HttpPost(baseUrl + "/social/user/unfriend/" + other);
+        HttpDelete request = new HttpDelete(baseUrl + "/social/user/" + other + "/unfriend");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
@@ -233,7 +233,7 @@ public class HttpUtils {
     }
 
     public static HttpResponse blockUser(String username, String password, String other, HttpClient client) throws IOException {
-        HttpPost request = new HttpPost(baseUrl + "/social/user/block/" + other);
+        HttpPost request = new HttpPost(baseUrl + "/social/user/" + other + "/block");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
@@ -242,7 +242,7 @@ public class HttpUtils {
     }
 
     public static HttpResponse unblockUser(String username, String password, String other, HttpClient client) throws IOException {
-        HttpDelete request = new HttpDelete(baseUrl + "/social/user/unblock/" + other);
+        HttpDelete request = new HttpDelete(baseUrl + "/social/user/" + other + "/unblock");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
@@ -251,7 +251,7 @@ public class HttpUtils {
     }
 
     public static HttpResponse checkIfBlocked(String username, String password, String other, HttpClient client) throws IOException {
-        HttpGet request = new HttpGet(baseUrl + "/social/user/blocked/" + other);
+        HttpGet request = new HttpGet(baseUrl + "/social/user/" + other + "/blocked");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
