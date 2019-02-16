@@ -82,7 +82,7 @@ public class AccountUtils {
             String contents = EntityUtils.toString(response.getEntity());
             JSONObject json = new JSONObject(contents);
 
-            UserInfo info = new UserInfo(json.getString("username"), json.getString("userId"));
+            UserInfo info = new UserInfo(json.getString("username"), json.getString("userId"), json.getInt("rating"));
 
             if(username != null) {
                 Assert.assertEquals(username, info.getUsername());

@@ -85,6 +85,13 @@ public class AccountTest {
         AccountUtils.addUser(test, "03", "password:", client, HttpStatus.SC_NO_CONTENT);
     }
 
+    @Test
+    public void registerUser_CheckInitialRating_200Rating1000() throws IOException {
+        AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        UserInfo info = AccountUtils.seachUsers(test + "01", null, client, HttpStatus.SC_OK);
+        Assert.assertEquals(1000, info.getRating());
+    }
+
     //Change Username
     @Test
     public void changeUsername_OneUser_204UsernameChanged() throws IOException {

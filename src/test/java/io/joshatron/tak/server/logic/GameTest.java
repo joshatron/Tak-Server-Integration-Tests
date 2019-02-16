@@ -3,6 +3,7 @@ package io.joshatron.tak.server.logic;
 import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -1351,6 +1352,25 @@ public class GameTest {
         GameUtils.playTurn(user1, gameId, turn, client, HttpStatus.SC_UNAUTHORIZED);
         user1.setPassword("password");
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{});
+    }
+
+    @Test
+    public void playTurn_CheckRatingAfterGame_200RatingsAccurate() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        Assert.assertEquals(1000, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(1000, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        playSimpleGame(user1, user2, "WHITE", "WHITE");
+        Assert.assertEquals(1010, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(990, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        playSimpleGame(user1, user2, "WHITE", "WHITE");
+        Assert.assertEquals(1019, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(981, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        playSimpleGame(user2, user1, "WHITE", "WHITE");
+        Assert.assertEquals(1008, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(992, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
     }
 
     //Get Notifications
