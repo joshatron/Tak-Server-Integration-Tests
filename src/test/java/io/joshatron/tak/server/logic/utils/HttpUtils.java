@@ -119,7 +119,7 @@ public class HttpUtils {
         }
         payload += "}";
 
-        HttpPost request = new HttpPost(baseUrl + "/account/changename");
+        HttpPost request = new HttpPost(baseUrl + "/account/change-name");
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         if (username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
@@ -136,7 +136,7 @@ public class HttpUtils {
         }
         payload += "}";
 
-        HttpPost request = new HttpPost(baseUrl + "/account/changepass");
+        HttpPost request = new HttpPost(baseUrl + "/account/change-pass");
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
@@ -381,7 +381,7 @@ public class HttpUtils {
         }
         payload.append("}");
 
-        HttpPost request = new HttpPost(baseUrl + "/social/message/markread");
+        HttpPost request = new HttpPost(baseUrl + "/social/message/mark-read");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
