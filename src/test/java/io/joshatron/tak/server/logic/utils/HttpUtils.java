@@ -618,4 +618,62 @@ public class HttpUtils {
 
         return client.execute(request);
     }
+
+    public static HttpResponse initializeAdminAccount(HttpClient client) throws IOException {
+        HttpPost request = new HttpPost(baseUrl + "/admin/initialize");
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse changeAdminPassword(String username, String password, String newPass, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + newPass + "\"}";
+
+        HttpPost request = new HttpPost(baseUrl + "/admin/change-pass");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse resetUserPassword(String username, String password, String user, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + user + "\"}";
+
+        HttpPost request = new HttpPost(baseUrl + "/admin/reset-user");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse banUser(String username, String password, String user, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + user + "\"}";
+
+        HttpPost request = new HttpPost(baseUrl + "/admin/ban-user");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
+
+    public static HttpResponse unbanUser(String username, String password, String user, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + user + "\"}";
+
+        HttpPost request = new HttpPost(baseUrl + "/admin/unban-user");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        return client.execute(request);
+    }
 }
