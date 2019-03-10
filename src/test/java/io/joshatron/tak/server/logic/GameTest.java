@@ -17,10 +17,6 @@ public class GameTest {
     private HttpClient client;
     private String test;
 
-    public GameTest() throws IOException {
-        client = HttpUtils.createHttpClient();
-    }
-
     private String playSimpleGame(User user1, User user2, String requesterColor, String first) throws IOException {
         GameUtils.requestGame(user1, user2, 3, requesterColor, first, client, HttpStatus.SC_NO_CONTENT);
         GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
@@ -37,6 +33,7 @@ public class GameTest {
     @Before
     public void initializeTest() {
         test = "C" + RandomUtils.generateTest(10);
+        client = HttpUtils.createHttpClient();
     }
 
     //Request a Game

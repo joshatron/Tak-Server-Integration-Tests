@@ -21,13 +21,10 @@ public class SocialTest {
     private HttpClient client;
     private String test;
 
-    public SocialTest() throws IOException {
-        client = HttpUtils.createHttpClient();
-    }
-
     @Before
     public void initializeTest() {
         test = "B" + RandomUtils.generateTest(10);
+        client = HttpUtils.createHttpClient();
     }
 
     //Create Friend Request

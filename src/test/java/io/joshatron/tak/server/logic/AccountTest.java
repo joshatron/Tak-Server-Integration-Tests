@@ -19,13 +19,10 @@ public class AccountTest {
     private HttpClient client;
     private String test;
 
-    public AccountTest() {
-        client = HttpUtils.createHttpClient();
-    }
-
     @Before
     public void initializeTest() {
         test = "A" + RandomUtils.generateTest(10);
+        client = HttpUtils.createHttpClient();
     }
 
     //Register User
