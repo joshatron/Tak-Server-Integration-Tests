@@ -80,6 +80,7 @@ public class AccountUtils {
 
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String contents = EntityUtils.toString(response.getEntity());
+            EntityUtils.consume(response.getEntity());
             JSONObject json = new JSONObject(contents);
 
             UserInfo info = new UserInfo(json.getString("username"), json.getString("userId"), json.getInt("rating"));

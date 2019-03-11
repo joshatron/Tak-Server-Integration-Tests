@@ -15,7 +15,7 @@ public class AdminUtils {
         HttpResponse response = HttpUtils.initializeAdminAccount(client);
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         //This is from the server default password
-        return "admin-password";
+        return "password";
     }
 
     public static void changePassword(User user, String newPass, HttpClient client, int expected) throws IOException {
@@ -43,6 +43,7 @@ public class AdminUtils {
         Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String contents = EntityUtils.toString(response.getEntity());
+            EntityUtils.consume(response.getEntity());
             JSONObject json = new JSONObject(contents);
 
             return json.getString("text");

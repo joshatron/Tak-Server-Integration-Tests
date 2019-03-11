@@ -73,6 +73,9 @@ public class AdminTest {
     //Ban User
     @Test
     public void banUser_Normal_200UserBanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
