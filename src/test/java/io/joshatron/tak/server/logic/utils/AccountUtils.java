@@ -12,14 +12,14 @@ import java.io.IOException;
 public class AccountUtils {
 
     public static User addUser(String test, String user, String password, HttpClient client, int expected) throws IOException {
-        HttpResponse response;
+        Response response;
         if(test == null || user == null) {
             response = HttpUtils.createUser(null, password, client);
         }
         else {
             response = HttpUtils.createUser(test + user, password, client);
         }
-        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(expected, response.getStatus());
         if(expected == HttpStatus.SC_NO_CONTENT) {
             UserInfo info = seachUsers(test + user, null, client, HttpStatus.SC_OK);
             User u = new User(test + user, password, info.getUserId());
@@ -63,25 +63,23 @@ public class AccountUtils {
     }
 
     public static void authenticate(User user, HttpClient client, int expected) throws IOException {
-        HttpResponse response;
+        Response response;
         if(user != null) {
             response = HttpUtils.authenticate(user.getUsername(), user.getPassword(), client);
         }
         else {
             response = HttpUtils.authenticate(null, null, client);
         }
-        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(expected, response.getStatus());
     }
 
     public static UserInfo seachUsers(String username, String userId, HttpClient client, int expected) throws IOException {
-        HttpResponse response;
+        Response response;
         response = HttpUtils.searchUser(username, userId, client);
-        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(expected, response.getStatus());
 
-        if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            String contents = EntityUtils.toString(response.getEntity());
-            EntityUtils.consume(response.getEntity());
-            JSONObject json = new JSONObject(contents);
+        if(response.getStatus() == HttpStatus.SC_OK) {
+            JSONObject json = new JSONObject(response.getContents());
 
             UserInfo info = new UserInfo(json.getString("username"), json.getString("userId"), json.getInt("rating"));
 

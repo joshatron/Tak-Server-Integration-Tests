@@ -80,38 +80,79 @@ public class AdminTest {
 
     @Test
     public void banUser_MultipleUsers_200UserBanned() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user1.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user1, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user2, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
     public void banUser_InvalidPassword_401UserNotBanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(new User("admin", "drowssap"), user.getUserId(), client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void banUser_InvalidUser_404UserNotBanned() throws IOException {
+    public void banUser_InvalidUserToBan_404UserNotBanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, "0000000000000000", client, HttpStatus.SC_NOT_FOUND);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
-    public void banUser_UserBanned_401UserNotBanned() throws IOException {
+    public void banUser_UserBanned_401UserStillBanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     //Unban User
     @Test
     public void unbanUser_Normal_200UserUnbanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AdminUtils.unbanUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
     public void unbanUser_MultipleUsers_200UserUnbanned() throws IOException {
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user1.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user1, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user2, client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.unbanUser(ADMIN, user1.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user1, client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user2, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
     public void unbanUser_InvalidPassword_401UserNotUnbanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AdminUtils.unbanUser(new User("admin", "drowssap"), user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
-    public void unbanUser_InvalidUser_404UserNotUnbanned() throws IOException {
+    public void unbanUser_InvalidUserToUnban_404UserNotUnbanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AdminUtils.unbanUser(ADMIN, "000000000000000", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
     public void unbanUser_NotBanned_401UserNotUnbanned() throws IOException {
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.unbanUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 }

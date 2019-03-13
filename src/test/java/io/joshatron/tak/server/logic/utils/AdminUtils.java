@@ -33,18 +33,16 @@ public class AdminUtils {
     }
 
     public static String resetUserPassword(User user, String toReset, HttpClient client, int expected) throws IOException {
-        HttpResponse response;
+        Response response;
         if(user != null) {
             response = HttpUtils.resetUserPassword(user.getUsername(), user.getPassword(), toReset, client);
         }
         else {
             response = HttpUtils.resetUserPassword(null, null, toReset, client);
         }
-        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
-        if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            String contents = EntityUtils.toString(response.getEntity());
-            EntityUtils.consume(response.getEntity());
-            JSONObject json = new JSONObject(contents);
+        Assert.assertEquals(expected, response.getStatus());
+        if(response.getStatus() == HttpStatus.SC_OK) {
+            JSONObject json = new JSONObject(response.getContents());
 
             return json.getString("text");
         }

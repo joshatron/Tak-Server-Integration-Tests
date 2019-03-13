@@ -17,6 +17,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
+import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -92,7 +93,7 @@ public class HttpUtils {
         return "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
     }
 
-    public static HttpResponse createUser(String username, String password, HttpClient client) throws IOException {
+    public static Response createUser(String username, String password, HttpClient client) throws IOException {
         String payload = "{";
         if(username != null) {
             payload += "\"username\": \"" + username + "\"";
@@ -109,7 +110,11 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
     public static HttpResponse changeUsername(String username, String password, String newPassword, HttpClient client) throws IOException {
@@ -147,16 +152,20 @@ public class HttpUtils {
     }
 
 
-    public static HttpResponse authenticate(String username, String password, HttpClient client) throws IOException {
+    public static Response authenticate(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/account/authenticate");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse searchUser(String username, String userId, HttpClient client) throws IOException {
+    public static Response searchUser(String username, String userId, HttpClient client) throws IOException {
         StringBuilder params = new StringBuilder("?");
         if(username != null) {
             params.append("user=");
@@ -171,7 +180,11 @@ public class HttpUtils {
         }
         HttpGet request = new HttpGet(baseUrl + "/account/user" + params.toString());
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
     public static HttpResponse requestFriend(String username, String password, String other, HttpClient client) throws IOException {
@@ -638,7 +651,7 @@ public class HttpUtils {
         return client.execute(request);
     }
 
-    public static HttpResponse resetUserPassword(String username, String password, String user, HttpClient client) throws IOException {
+    public static Response resetUserPassword(String username, String password, String user, HttpClient client) throws IOException {
         String payload = "{\"text\": \"" + user + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/admin/reset-user");
@@ -648,7 +661,9 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        return response;
     }
 
     public static HttpResponse banUser(String username, String password, String user, HttpClient client) throws IOException {
