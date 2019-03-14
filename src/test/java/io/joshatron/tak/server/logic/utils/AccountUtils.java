@@ -1,9 +1,7 @@
 package io.joshatron.tak.server.logic.utils;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.junit.Assert;
 
@@ -33,14 +31,14 @@ public class AccountUtils {
     }
 
     public static void changeUsername(User user, String newName, HttpClient client, int expected) throws IOException {
-        HttpResponse response;
+        Response response;
         if(user != null) {
             response = HttpUtils.changeUsername(user.getUsername(), user.getPassword(), newName, client);
         }
         else {
             response = HttpUtils.changeUsername(null, null, newName, client);
         }
-        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(expected, response.getStatus());
         if(expected == HttpStatus.SC_NO_CONTENT) {
             user.setUsername(newName);
             authenticate(user, client, HttpStatus.SC_NO_CONTENT);
@@ -48,14 +46,14 @@ public class AccountUtils {
     }
 
     public static void changePassword(User user, String newPass, HttpClient client, int expected) throws IOException {
-        HttpResponse response;
+        Response response;
         if(user != null) {
             response = HttpUtils.changePassword(user.getUsername(), user.getPassword(), newPass, client);
         }
         else {
             response = HttpUtils.changePassword(null, null, newPass, client);
         }
-        Assert.assertEquals(expected, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(expected, response.getStatus());
         if(expected == HttpStatus.SC_NO_CONTENT) {
             user.setPassword(newPass);
             authenticate(user, client, HttpStatus.SC_NO_CONTENT);
