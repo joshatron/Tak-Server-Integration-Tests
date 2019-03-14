@@ -17,7 +17,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
-import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -117,7 +116,7 @@ public class HttpUtils {
         return response;
     }
 
-    public static HttpResponse changeUsername(String username, String password, String newPassword, HttpClient client) throws IOException {
+    public static Response changeUsername(String username, String password, String newPassword, HttpClient client) throws IOException {
         String payload = "{";
         if (newPassword != null) {
             payload += "\"text\": \"" + newPassword + "\"";
@@ -131,10 +130,14 @@ public class HttpUtils {
         }
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse changePassword(String username, String password, String newPassword, HttpClient client) throws IOException {
+    public static Response changePassword(String username, String password, String newPassword, HttpClient client) throws IOException {
         String payload = "{";
         if(newPassword != null) {
             payload += "\"text\": \"" + newPassword + "\"";
@@ -148,7 +151,11 @@ public class HttpUtils {
         }
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
 
@@ -187,26 +194,34 @@ public class HttpUtils {
         return response;
     }
 
-    public static HttpResponse requestFriend(String username, String password, String other, HttpClient client) throws IOException {
+    public static Response requestFriend(String username, String password, String other, HttpClient client) throws IOException {
         HttpPost request = new HttpPost(baseUrl + "/social/request/create/" + other);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse cancelFriendRequest(String username, String password, String other, HttpClient client) throws IOException {
+    public static Response cancelFriendRequest(String username, String password, String other, HttpClient client) throws IOException {
         HttpDelete request = new HttpDelete(baseUrl + "/social/request/cancel/" + other);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse respondToRequest(String username, String password, String other, String response, HttpClient client) throws IOException {
-        String payload = "{\"text\": \"" + response + "\"}";
+    public static Response respondToRequest(String username, String password, String other, String answer, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + answer + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/social/request/respond/" + other);
         if(username != null && password != null) {
@@ -215,82 +230,118 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse checkIncomingFriendRequests(String username, String password, HttpClient client) throws IOException {
+    public static Response checkIncomingFriendRequests(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/request/incoming");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse checkOutgoingFriendRequests(String username, String password, HttpClient client) throws IOException {
+    public static Response checkOutgoingFriendRequests(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/request/outgoing");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse unfriendUser(String username, String password, String other, HttpClient client) throws IOException {
+    public static Response unfriendUser(String username, String password, String other, HttpClient client) throws IOException {
         HttpDelete request = new HttpDelete(baseUrl + "/social/user/" + other + "/unfriend");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse blockUser(String username, String password, String other, HttpClient client) throws IOException {
+    public static Response blockUser(String username, String password, String other, HttpClient client) throws IOException {
         HttpPost request = new HttpPost(baseUrl + "/social/user/" + other + "/block");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse unblockUser(String username, String password, String other, HttpClient client) throws IOException {
+    public static Response unblockUser(String username, String password, String other, HttpClient client) throws IOException {
         HttpDelete request = new HttpDelete(baseUrl + "/social/user/" + other + "/unblock");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse checkIfBlocked(String username, String password, String other, HttpClient client) throws IOException {
+    public static Response checkIfBlocked(String username, String password, String other, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/user/" + other + "/blocked");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse getFriends(String username, String password, HttpClient client) throws IOException {
+    public static Response getFriends(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/user/friends");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse getBlocked(String username, String password, HttpClient client) throws IOException {
+    public static Response getBlocked(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/user/blocking");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse sendMessage(String username, String password, String recipient, String message, HttpClient client) throws IOException {
+    public static Response sendMessage(String username, String password, String recipient, String message, HttpClient client) throws IOException {
         String payload = "{\"text\": \"" + message + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/social/message/send/" + recipient);
@@ -300,10 +351,14 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse searchMessages(String username, String password, String senders, Date start, Date end, String read, String from, HttpClient client) throws IOException {
+    public static Response searchMessages(String username, String password, String senders, Date start, Date end, String read, String from, HttpClient client) throws IOException {
         boolean first = true;
         StringBuilder params = new StringBuilder("?");
 
@@ -356,10 +411,14 @@ public class HttpUtils {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse markRead(String username, String password, String[] ids, User[] senders, HttpClient client) throws IOException {
+    public static Response markRead(String username, String password, String[] ids, User[] senders, HttpClient client) throws IOException {
         StringBuilder payload = new StringBuilder("{");
         if(ids != null) {
             payload.append("\"ids\": [");
@@ -401,19 +460,27 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload.toString(), ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse getSocialNotifications(String username, String password, HttpClient client) throws IOException {
+    public static Response getSocialNotifications(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/notifications");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse requestGame(String username, String password, String other, Integer size, String requesterColor, String first, HttpClient client) throws IOException {
+    public static Response requestGame(String username, String password, String other, Integer size, String requesterColor, String first, HttpClient client) throws IOException {
         boolean firstParam = true;
         String payload = "{";
         if(size != null) {
@@ -442,20 +509,28 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse deleteGameRequest(String username, String password, String other, HttpClient client) throws IOException {
+    public static Response deleteGameRequest(String username, String password, String other, HttpClient client) throws IOException {
         HttpDelete request = new HttpDelete(baseUrl + "/games/request/cancel/" + other);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse respondToGameRequest(String username, String password, String other, String response, HttpClient client) throws IOException {
-        String payload = "{\"text\": \"" + response + "\"}";
+    public static Response respondToGameRequest(String username, String password, String other, String answer, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + answer + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/games/request/respond/" + other);
         if(username != null && password != null) {
@@ -464,55 +539,79 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse checkIncomingGameRequests(String username, String password, HttpClient client) throws IOException {
+    public static Response checkIncomingGameRequests(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/games/request/incoming");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse checkOutgoingGameRequests(String username, String password, HttpClient client) throws IOException {
+    public static Response checkOutgoingGameRequests(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/games/request/outgoing");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse requestRandomGame(String username, String password, int size, HttpClient client) throws IOException {
+    public static Response requestRandomGame(String username, String password, int size, HttpClient client) throws IOException {
         HttpPost request = new HttpPost(baseUrl + "/games/request/random/create/" + size);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse deleteRandomGameRequest(String username, String password, HttpClient client) throws IOException {
+    public static Response deleteRandomGameRequest(String username, String password, HttpClient client) throws IOException {
         HttpDelete request = new HttpDelete(baseUrl + "/games/request/random/cancel");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse getRandomRequestSize(String username, String password, HttpClient client) throws IOException {
+    public static Response getRandomRequestSize(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/games/request/random/outgoing");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse searchGames(String username, String password, String opponents, Date start, Date end, String complete, String pending, String sizes, String winner, String color, HttpClient client) throws IOException {
+    public static Response searchGames(String username, String password, String opponents, Date start, Date end, String complete, String pending, String sizes, String winner, String color, HttpClient client) throws IOException {
         boolean first = true;
         StringBuilder params = new StringBuilder("?");
 
@@ -589,28 +688,40 @@ public class HttpUtils {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse getGame(String username, String gameId, String password, HttpClient client) throws IOException {
+    public static Response getGame(String username, String gameId, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/games/game/" + gameId);
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse getPossibleMoves(String username, String gameId, String password, HttpClient client) throws IOException {
+    public static Response getPossibleMoves(String username, String gameId, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/games/game/" + gameId + "/possible");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse playTurn(String username, String gameId, String turn, String password, HttpClient client) throws IOException {
+    public static Response playTurn(String username, String gameId, String turn, String password, HttpClient client) throws IOException {
         String payload = "{\"text\": \"" + turn + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/games/game/" + gameId + "/play");
@@ -620,25 +731,37 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse getGameNotifications(String username, String password, HttpClient client) throws IOException {
+    public static Response getGameNotifications(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/games/notifications");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse initializeAdminAccount(HttpClient client) throws IOException {
+    public static Response initializeAdminAccount(HttpClient client) throws IOException {
         HttpPost request = new HttpPost(baseUrl + "/admin/initialize");
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse changeAdminPassword(String username, String password, String newPass, HttpClient client) throws IOException {
+    public static Response changeAdminPassword(String username, String password, String newPass, HttpClient client) throws IOException {
         String payload = "{\"text\": \"" + newPass + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/admin/change-pass");
@@ -648,7 +771,11 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
     public static Response resetUserPassword(String username, String password, String user, HttpClient client) throws IOException {
@@ -666,7 +793,7 @@ public class HttpUtils {
         return response;
     }
 
-    public static HttpResponse banUser(String username, String password, String user, HttpClient client) throws IOException {
+    public static Response banUser(String username, String password, String user, HttpClient client) throws IOException {
         String payload = "{\"text\": \"" + user + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/admin/ban-user");
@@ -676,10 +803,14 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 
-    public static HttpResponse unbanUser(String username, String password, String user, HttpClient client) throws IOException {
+    public static Response unbanUser(String username, String password, String user, HttpClient client) throws IOException {
         String payload = "{\"text\": \"" + user + "\"}";
 
         HttpPost request = new HttpPost(baseUrl + "/admin/unban-user");
@@ -689,6 +820,10 @@ public class HttpUtils {
         StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
         request.setEntity(entity);
 
-        return client.execute(request);
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
     }
 }
