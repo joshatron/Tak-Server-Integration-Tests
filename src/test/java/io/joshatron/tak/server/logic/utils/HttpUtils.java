@@ -779,14 +779,10 @@ public class HttpUtils {
     }
 
     public static Response resetUserPassword(String username, String password, String user, HttpClient client) throws IOException {
-        String payload = "{\"text\": \"" + user + "\"}";
-
-        HttpPost request = new HttpPost(baseUrl + "/admin/reset-user");
+        HttpPost request = new HttpPost(baseUrl + "/admin/user/" + user + "/reset");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
 
         Response response = new Response(client.execute(request));
 
@@ -794,14 +790,10 @@ public class HttpUtils {
     }
 
     public static Response banUser(String username, String password, String user, HttpClient client) throws IOException {
-        String payload = "{\"text\": \"" + user + "\"}";
-
-        HttpPost request = new HttpPost(baseUrl + "/admin/ban-user");
+        HttpPost request = new HttpPost(baseUrl + "/admin/user/" + user + "/ban");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
 
         Response response = new Response(client.execute(request));
 
@@ -811,14 +803,10 @@ public class HttpUtils {
     }
 
     public static Response unbanUser(String username, String password, String user, HttpClient client) throws IOException {
-        String payload = "{\"text\": \"" + user + "\"}";
-
-        HttpPost request = new HttpPost(baseUrl + "/admin/unban-user");
+        HttpPost request = new HttpPost(baseUrl + "/admin/user/" + user + "/unban");
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }
-        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
 
         Response response = new Response(client.execute(request));
 

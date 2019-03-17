@@ -145,14 +145,14 @@ public class AdminTest {
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
-        AdminUtils.unbanUser(ADMIN, "000000000000000", client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.unbanUser(ADMIN, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
     public void unbanUser_NotBanned_401UserNotUnbanned() throws IOException {
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        AdminUtils.unbanUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.unbanUser(ADMIN, user.getUserId(), client, HttpStatus.SC_FORBIDDEN);
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 }
