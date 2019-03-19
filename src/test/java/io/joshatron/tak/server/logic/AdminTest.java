@@ -102,11 +102,12 @@ public class AdminTest {
     }
 
     @Test
-    public void banUser_UserBanned_401UserStillBanned() throws IOException {
+    public void banUser_UserBanned_403UserStillBanned() throws IOException {
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_FORBIDDEN);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     //Unban User
@@ -150,9 +151,49 @@ public class AdminTest {
     }
 
     @Test
-    public void unbanUser_NotBanned_401UserNotUnbanned() throws IOException {
+    public void unbanUser_NotBanned_403UserNotUnbanned() throws IOException {
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.unbanUser(ADMIN, user.getUserId(), client, HttpStatus.SC_FORBIDDEN);
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
+    }
+
+    //Unlock user
+    @Test
+    public void unlockUser_Normal_204UserUnlocked() throws IOException {
+
+    }
+
+    @Test
+    public void unlockUser_MultipleUsers_204UserUnlocked() throws IOException {
+
+    }
+
+    @Test
+    public void unlockUser_NotLocked_403UserStillUnlocked() throws IOException {
+
+    }
+
+
+    @Test
+    public void unlockUser_Banned_403NotLockedStillBanned() throws IOException {
+
+    }
+
+
+    @Test
+    public void unlockUser_LockedThenBanned_403NotLockedStillBanned() throws IOException {
+
+    }
+
+
+    @Test
+    public void unlockUser_InvalidPassword_401NotUnlocked() throws IOException {
+
+    }
+
+
+    @Test
+    public void unlockUser_InvalidUser_404NothingUnlocked() throws IOException {
+
     }
 }
