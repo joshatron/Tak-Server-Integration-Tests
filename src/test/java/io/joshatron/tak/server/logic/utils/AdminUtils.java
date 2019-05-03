@@ -3,7 +3,7 @@ package io.joshatron.tak.server.logic.utils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.json.JSONObject;
-import org.junit.Assert;
+import org.testng.Assert;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ public class AdminUtils {
 
     public static String initialize(HttpClient client, int expected) throws IOException {
         Response response = HttpUtils.initializeAdminAccount(client);
-        Assert.assertEquals(expected, response.getStatus());
+        Assert.assertEquals(response.getStatus(), expected);
         //This is from the server default password
         return "password";
     }
@@ -24,7 +24,7 @@ public class AdminUtils {
         else {
             response = HttpUtils.changeAdminPassword(null, null, newPass, client);
         }
-        Assert.assertEquals(expected, response.getStatus());
+        Assert.assertEquals(response.getStatus(), expected);
         if(expected == HttpStatus.SC_NO_CONTENT) {
             user.setPassword(newPass);
         }
@@ -38,7 +38,7 @@ public class AdminUtils {
         else {
             response = HttpUtils.resetUserPassword(null, null, toReset, client);
         }
-        Assert.assertEquals(expected, response.getStatus());
+        Assert.assertEquals(response.getStatus(), expected);
         if(response.getStatus() == HttpStatus.SC_OK) {
             JSONObject json = new JSONObject(response.getContents());
 
@@ -56,7 +56,7 @@ public class AdminUtils {
         else {
             response = HttpUtils.banUser(null, null, toBan, client);
         }
-        Assert.assertEquals(expected, response.getStatus());
+        Assert.assertEquals(response.getStatus(), expected);
     }
 
     public static void unbanUser(User user, String toUnban, HttpClient client, int expected) throws IOException {
@@ -67,6 +67,6 @@ public class AdminUtils {
         else {
             response = HttpUtils.unbanUser(null, null, toUnban, client);
         }
-        Assert.assertEquals(expected, response.getStatus());
+        Assert.assertEquals(response.getStatus(), expected);
     }
 }

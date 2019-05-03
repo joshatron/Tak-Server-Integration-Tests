@@ -3,9 +3,9 @@ package io.joshatron.tak.server.logic;
 import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -15,7 +15,6 @@ import java.util.Date;
 public class GameTest {
 
     private HttpClient client;
-    private String test;
 
     private String playSimpleGame(User user1, User user2, String requesterColor, String first) throws IOException {
         GameUtils.requestGame(user1, user2, 3, requesterColor, first, client, HttpStatus.SC_NO_CONTENT);
@@ -30,15 +29,19 @@ public class GameTest {
         return gameId;
     }
 
-    @Before
-    public void initializeTest() {
-        test = "C" + RandomUtils.generateTest(10);
+    @BeforeSuite
+    public void initializeSuite() {
         client = HttpUtils.createHttpClient();
+    }
+
+    private String getTest() {
+        return "C" + RandomUtils.generateTest(10);
     }
 
     //Request a Game
     @Test
     public void requestGame_RequestFriend_204RequestMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -49,6 +52,7 @@ public class GameTest {
 
     @Test
     public void requestGame_RequestNonFriend_403RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_FORBIDDEN);
@@ -57,6 +61,7 @@ public class GameTest {
 
     @Test
     public void requestGame_RequestPendingFriend_403RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -66,6 +71,7 @@ public class GameTest {
 
     @Test
     public void requestGame_RequestBlocked_403RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user2, user1, client, HttpStatus.SC_NO_CONTENT);
@@ -75,6 +81,7 @@ public class GameTest {
 
     @Test
     public void requestGame_RequestNonexistent_404RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -84,6 +91,7 @@ public class GameTest {
 
     @Test
     public void requestGame_RequestWithExistingRequest_403RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -96,6 +104,7 @@ public class GameTest {
 
     @Test
     public void requestGame_RequestYourself_403RequestNotMade() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestGame(user, user, 6, "BLACK", "BLACK", client, HttpStatus.SC_FORBIDDEN);
         GameUtils.checkOutgoing(user, client, HttpStatus.SC_OK, null, new User[]{user});
@@ -103,6 +112,7 @@ public class GameTest {
 
     @Test
     public void requestGame_RequestExistingGame_403RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -116,6 +126,7 @@ public class GameTest {
 
     @Test
     public void requestGame_InvalidUser_401RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -125,6 +136,7 @@ public class GameTest {
 
     @Test
     public void requestGame_InvalidCredentials_401RequestNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -137,6 +149,7 @@ public class GameTest {
     //Cancel a Game Request
     @Test
     public void cancelGameRequest_BasicRequest_204RequestRemoved() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -148,6 +161,7 @@ public class GameTest {
 
     @Test
     public void cancelGameRequest_CancelInvalidUser_404() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -160,6 +174,7 @@ public class GameTest {
 
     @Test
     public void cancelGameRequest_RequestNotMade_404() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -170,6 +185,7 @@ public class GameTest {
 
     @Test
     public void cancelGameRequest_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -180,6 +196,7 @@ public class GameTest {
 
     @Test
     public void cancelGameRequest_InvalidCredentials_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -193,6 +210,7 @@ public class GameTest {
     //Respond to Game Request
     @Test
     public void respondToGameRequest_RespondAccept_204GameStartedRequestRemoved() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -205,6 +223,7 @@ public class GameTest {
 
     @Test
     public void respondToGameRequest_RespondDeny_204GameNotStartedRequestRemoved() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -217,6 +236,7 @@ public class GameTest {
 
     @Test
     public void respondToGameRequest_RespondBadFormatting_400GameNotStartedRequestStillThere() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -229,6 +249,7 @@ public class GameTest {
 
     @Test
     public void respondToGameRequest_RespondNoRequest_404NoGameStarted() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -240,6 +261,7 @@ public class GameTest {
 
     @Test
     public void respondToGameRequest_InvalidUser_401GameNotStartedRequestStillThere() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -253,6 +275,7 @@ public class GameTest {
 
     @Test
     public void respondToGameRequest_InvalidCredentials_401GameNotStartedRequestStillThere() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -268,12 +291,14 @@ public class GameTest {
     //Check Incoming Game Request
     @Test
     public void checkIncomingGames_NoRequests_200EmptyArray() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.checkIncoming(user, client, HttpStatus.SC_OK, null, null);
     }
 
     @Test
     public void checkIncomingGames_OneRequest_200ArrayWithOne() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -284,6 +309,7 @@ public class GameTest {
 
     @Test
     public void checkIncomingGames_MultipleRequests_200ArrayWithMultiple() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -298,6 +324,7 @@ public class GameTest {
 
     @Test
     public void checkIncomingGames_OneOutgoing_200EmptyArray() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -308,6 +335,7 @@ public class GameTest {
 
     @Test
     public void checkIncomingGames_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -319,6 +347,7 @@ public class GameTest {
 
     @Test
     public void checkIncomingGames_InvalidCredentials_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -331,12 +360,14 @@ public class GameTest {
     //Check Outgoing Game Request
     @Test
     public void checkOutgoingGames_NoRequests_200EmptyArray() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.checkOutgoing(user, client, HttpStatus.SC_OK, null, null);
     }
 
     @Test
     public void checkOutgoingGames_200ArrayWithOne() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -347,6 +378,7 @@ public class GameTest {
 
     @Test
     public void checkOutgoingGames_200ArrayWithMultiple() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -361,6 +393,7 @@ public class GameTest {
 
     @Test
     public void checkOutgoingGames_OneIncoming_200EmptyArray() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -371,6 +404,7 @@ public class GameTest {
 
     @Test
     public void checkOutgoingGames_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -382,6 +416,7 @@ public class GameTest {
 
     @Test
     public void checkOutgoingGames_InvalidCredentials_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -394,6 +429,7 @@ public class GameTest {
     //Request a Random Game
     @Test
     public void requestRandomGame_OneRequest_204NoGameCreated() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchAllGames(user, client, HttpStatus.SC_OK, 0);
@@ -402,6 +438,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoMatchingRequests_204GameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
@@ -414,6 +451,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoMismatchingRequests_204NoGameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
@@ -426,6 +464,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoMatchingAlreadyInGame_204NoGameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -442,6 +481,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoFriendsMatching_204GameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -456,6 +496,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoRandomMatching_204GameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
@@ -468,6 +509,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoMatchingBlocked_204NoGameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -481,6 +523,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoMismatchThenThirdMatch_204OneGameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -497,6 +540,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_TwoBlockedMatchedThenNonBlockMatch_204OneGameCreated() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -512,6 +556,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = new User(test + "02", "password");
         GameUtils.requestRandomGame(user2, 3, client, HttpStatus.SC_UNAUTHORIZED);
@@ -520,6 +565,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_InvalidCredentials_401() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("drowssap");
         GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_UNAUTHORIZED);
@@ -529,6 +575,7 @@ public class GameTest {
 
     @Test
     public void requestRandomGame_GameSizeIllegalNumber_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user, 7, client, HttpStatus.SC_BAD_REQUEST);
         GameUtils.rawDeleteRandomGameRequest(user, client);
@@ -537,6 +584,7 @@ public class GameTest {
     //Cancel a Random Game Request
     @Test
     public void cancelRandomRequest_BasicRequest_204RequestRemoved() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user, 3, client, HttpStatus.SC_NO_CONTENT);
         GameUtils.deleteRandomGameRequest(user, client, HttpStatus.SC_NO_CONTENT);
@@ -545,12 +593,14 @@ public class GameTest {
 
     @Test
     public void cancelRandomRequest_RequestNotMade_404() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.deleteRandomGameRequest(user, client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test
     public void cancelRandomRequest_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = new User(test + "02", "password");
         GameUtils.deleteRandomGameRequest(user2, client, HttpStatus.SC_UNAUTHORIZED);
@@ -558,6 +608,7 @@ public class GameTest {
 
     @Test
     public void cancelRandomRequest_InvalidCredentials_401() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user, 3, client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("drowssap");
@@ -569,6 +620,7 @@ public class GameTest {
     //Check Random Game Request
     @Test
     public void checkRandomRequest_BasicRequest_200Size() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_NO_CONTENT);
         GameUtils.getRandomRequestSize(user, client, HttpStatus.SC_OK, 5);
@@ -577,6 +629,7 @@ public class GameTest {
 
     @Test
     public void checkRandomRequest_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = new User(test + "02", "password");
         GameUtils.requestRandomGame(user1, 5, client, HttpStatus.SC_NO_CONTENT);
@@ -586,6 +639,7 @@ public class GameTest {
 
     @Test
     public void checkRandomRequest_InvalidCredentials_401() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestRandomGame(user, 5, client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("drowssap");
@@ -596,6 +650,7 @@ public class GameTest {
 
     @Test
     public void checkRandomRequest_RequestNotMade_404() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.getRandomRequestSize(user, client, HttpStatus.SC_NOT_FOUND, 0);
         GameUtils.rawDeleteRandomGameRequest(user, client);
@@ -604,12 +659,14 @@ public class GameTest {
     //List Games
     @Test
     public void listGames_NoParametersNoGames_200EmptyArray() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchAllGames(user, client, HttpStatus.SC_OK, 0);
     }
 
     @Test
     public void listGames_NoParametersOneGame_200ArrayWithOne() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -621,6 +678,7 @@ public class GameTest {
 
     @Test
     public void listGames_NoParametersMultipleGames_200ArrayWithMultiple() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -637,6 +695,7 @@ public class GameTest {
 
     @Test
     public void listGames_AllParameters_200ArrayWithSelected() throws IOException, InterruptedException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -659,6 +718,7 @@ public class GameTest {
 
     @Test
     public void listGames_ValidOpponents_200ArrayWithOpponents() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -675,6 +735,7 @@ public class GameTest {
 
     @Test
     public void listGames_InvalidOpponents_404EmptyArray() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -687,6 +748,7 @@ public class GameTest {
 
     @Test
     public void listGames_InvalidAndValidOpponents_404ArrayWithValid() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -699,6 +761,7 @@ public class GameTest {
 
     @Test
     public void listGames_OpponentWithNoGame_200EmptyArray() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user1, user2.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_OK, 0);
@@ -706,6 +769,7 @@ public class GameTest {
 
     @Test
     public void listGames_StartInPast_200GamesFromPastOn() throws IOException, InterruptedException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -729,6 +793,7 @@ public class GameTest {
 
     @Test
     public void listGames_StartInCurrent_200EmptyArray() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -741,6 +806,7 @@ public class GameTest {
 
     @Test
     public void listGames_StartInFuture_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -749,6 +815,7 @@ public class GameTest {
 
     @Test
     public void listGames_EndTimeNormal_200GamesBeforeTime() throws IOException, InterruptedException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -772,6 +839,7 @@ public class GameTest {
 
     @Test
     public void listGames_EndTimeBeforeAll_200EmptyArray() throws IOException, InterruptedException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -785,6 +853,7 @@ public class GameTest {
 
     @Test
     public void listGames_EndTimeInFuture_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -793,6 +862,7 @@ public class GameTest {
 
     @Test
     public void listGames_StartAndEnd_200GamesBetween() throws IOException, InterruptedException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -823,6 +893,7 @@ public class GameTest {
 
     @Test
     public void listGames_StartAfterEnd_400() throws IOException, InterruptedException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         Date end = new Date();
         Thread.sleep(2000);
@@ -832,6 +903,7 @@ public class GameTest {
 
     @Test
     public void listGames_CompleteGames_200OnlyComplete() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -851,6 +923,7 @@ public class GameTest {
 
     @Test
     public void listGames_IncompleteGames_200OnlyIncomplete() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -870,12 +943,14 @@ public class GameTest {
 
     @Test
     public void listGames_InvalidCompleteGames_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, "YES", null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_PendingGames_200OnlyPending() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -897,6 +972,7 @@ public class GameTest {
 
     @Test
     public void listGames_NotPendingGames_200OnlyNotPending() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -918,12 +994,14 @@ public class GameTest {
 
     @Test
     public void listGames_InvalidPendingGames_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, "YES", null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_WinnerGames_200OnlyWinner() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -942,6 +1020,7 @@ public class GameTest {
 
     @Test
     public void listGames_NotWinnerGames_200OnlyNotWinner() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -960,12 +1039,14 @@ public class GameTest {
 
     @Test
     public void listGames_InvalidWinnerGames_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, null, "NO_ONE", null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_WhiteGames_200OnlyWhite() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -987,6 +1068,7 @@ public class GameTest {
 
     @Test
     public void listGames_BlackGames_200OnlyBlack() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1008,12 +1090,14 @@ public class GameTest {
 
     @Test
     public void listGames_InvalidColorGames_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, null, null, "GRAY", client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_OneSize_200GamesWithSize() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1035,6 +1119,7 @@ public class GameTest {
 
     @Test
     public void listGames_MultipleSizes_200GamesWithAllSize() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1056,18 +1141,21 @@ public class GameTest {
 
     @Test
     public void listGames_SizeBadNumber_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, "7", null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_GoodAndBadSizes_400() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, "7,5", null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
     @Test
     public void listGames_InvalidUser_403() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = new User(test + "02", "password");
         GameUtils.searchAllGames(user2, client, HttpStatus.SC_UNAUTHORIZED, 0);
@@ -1075,6 +1163,7 @@ public class GameTest {
 
     @Test
     public void listGames_InvalidCredentials_403() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("drowssap");
         GameUtils.searchAllGames(user, client, HttpStatus.SC_UNAUTHORIZED, 0);
@@ -1083,6 +1172,7 @@ public class GameTest {
     //Get Info on a Game
     @Test
     public void getGame_ValidGame_200GameInfo() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1097,6 +1187,7 @@ public class GameTest {
 
     @Test
     public void getGame_NotYourGame_404() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1110,6 +1201,7 @@ public class GameTest {
 
     @Test
     public void getGame_NotRealGame_404() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1121,6 +1213,7 @@ public class GameTest {
 
     @Test
     public void getGame_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -1136,6 +1229,7 @@ public class GameTest {
 
     @Test
     public void getGame_InvalidCredentials_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1152,6 +1246,7 @@ public class GameTest {
     //Get Possible Next Turns For Game
     @Test
     public void getPossibleTurns_YourTurn_200PossibleTurns() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1164,6 +1259,7 @@ public class GameTest {
 
     @Test
     public void getPossibleTurns_TheirTurn_403() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1176,6 +1272,7 @@ public class GameTest {
 
     @Test
     public void getPossibleTurns_FinishedGame_200Empty() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1187,6 +1284,7 @@ public class GameTest {
 
     @Test
     public void getPossibleTurns_NotYourGame_404() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1200,12 +1298,14 @@ public class GameTest {
 
     @Test
     public void getPossibleTurns_InvalidGame_404() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.getPossibleMoves(user1, "0000000000000000000000000", client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
     @Test
     public void getPossibleTurns_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -1219,6 +1319,7 @@ public class GameTest {
 
     @Test
     public void getPossibleTurns_InvalidCredential_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1233,6 +1334,7 @@ public class GameTest {
     //Play Turn
     @Test
     public void playTurn_YourTurn_204TurnMadeConfirmationOfTurn() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1247,6 +1349,7 @@ public class GameTest {
 
     @Test
     public void playTurn_NotYourTurn_403TurnNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1261,6 +1364,7 @@ public class GameTest {
 
     @Test
     public void playTurn_NotYourGame_404TurnNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1276,12 +1380,14 @@ public class GameTest {
 
     @Test
     public void playTurn_InvalidGame_404() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.playTurn(user, "0000000000000000000000000", "ps b1", client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test
     public void playTurn_IllegalTurn_403TurnNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1297,6 +1403,7 @@ public class GameTest {
 
     @Test
     public void playTurn_IllFormattedTurn_400TurnNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1312,6 +1419,7 @@ public class GameTest {
 
     @Test
     public void playTurn_WinGame_204GameMarkedWin() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1322,6 +1430,7 @@ public class GameTest {
 
     @Test
     public void playTurn_InvalidUser_401TurnNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = new User(test + "03", "password");
@@ -1337,6 +1446,7 @@ public class GameTest {
 
     @Test
     public void playTurn_InvalidCredentials_401TurnNotMade() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1353,6 +1463,7 @@ public class GameTest {
 
     @Test
     public void playTurn_CheckRatingAfterGame_200RatingsAccurate() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1373,6 +1484,7 @@ public class GameTest {
     //Get Notifications
     @Test
     public void getNotifications_NoRequests_200RequestsFieldZero() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1382,6 +1494,7 @@ public class GameTest {
 
     @Test
     public void getNotifications_NonZeroRequests_200RequestsFieldMoreThanZero() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1392,6 +1505,7 @@ public class GameTest {
 
     @Test
     public void getNotifications_NoGames_200YourTurnFieldZero() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1401,6 +1515,7 @@ public class GameTest {
 
     @Test
     public void getNotifications_GamesNoneYourTurn_200YourTurnFieldZero() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
@@ -1412,6 +1527,7 @@ public class GameTest {
 
     @Test
     public void getNotifications_GamesSomeYourTurn_200YourTurnFieldOnlyYourTurn() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1428,6 +1544,7 @@ public class GameTest {
 
     @Test
     public void getNotifications_InvalidUser_401() throws IOException {
+        String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = new User(test + "02", "password");
         GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_UNAUTHORIZED, 0, 0);
@@ -1435,6 +1552,7 @@ public class GameTest {
 
     @Test
     public void getNotifications_InvalidCredential_401() throws IOException {
+        String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("drowssap");
         GameUtils.checkGameNotifications(user, client, HttpStatus.SC_UNAUTHORIZED, 0, 0);
