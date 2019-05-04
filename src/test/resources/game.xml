@@ -1,0 +1,7 @@
+<suite parallel="methods" thread-count="10" name="Game Suite">
+    <test name="Game Test">
+        <classes>
+            <class name="io.joshatron.tak.server.logic.GameTest"/>
+        </classes>
+    </test>
+</suite>

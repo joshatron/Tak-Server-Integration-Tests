@@ -1,0 +1,7 @@
+<suite name="Admin Suite">
+    <test name="Admin Test">
+        <classes>
+            <class name="io.joshatron.tak.server.logic.AdminTest"/>
+        </classes>
+    </test>
+</suite>

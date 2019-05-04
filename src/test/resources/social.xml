@@ -1,0 +1,7 @@
+<suite parallel="methods" thread-count="10" name="Social Suite">
+    <test name="Social Test">
+        <classes>
+            <class name="io.joshatron.tak.server.logic.SocialTest"/>
+        </classes>
+    </test>
+</suite>
