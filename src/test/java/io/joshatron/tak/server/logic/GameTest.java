@@ -29,7 +29,7 @@ public class GameTest {
         return gameId;
     }
 
-    @BeforeSuite
+    @BeforeSuite(groups = {"parallel", "serial"})
     public void initializeSuite() {
         client = HttpUtils.createHttpClient();
     }
@@ -39,7 +39,7 @@ public class GameTest {
     }
 
     //Request a Game
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestFriend_204RequestMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -50,7 +50,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestNonFriend_403RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -59,7 +59,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestPendingFriend_403RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -69,7 +69,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestBlocked_403RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -79,7 +79,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestNonexistent_404RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -89,7 +89,7 @@ public class GameTest {
         GameUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, null, new User[]{user3});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestWithExistingRequest_403RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -102,7 +102,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestYourself_403RequestNotMade() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -110,7 +110,7 @@ public class GameTest {
         GameUtils.checkOutgoing(user, client, HttpStatus.SC_OK, null, new User[]{user});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_RequestExistingGame_403RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -124,7 +124,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_InvalidUser_401RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -134,7 +134,7 @@ public class GameTest {
         GameUtils.checkIncoming(user1, client, HttpStatus.SC_OK, null, new User[]{user3});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void requestGame_InvalidCredentials_401RequestNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -147,7 +147,7 @@ public class GameTest {
     }
 
     //Cancel a Game Request
-    @Test
+    @Test(groups = {"parallel"})
     public void cancelGameRequest_BasicRequest_204RequestRemoved() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -159,7 +159,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void cancelGameRequest_CancelInvalidUser_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -172,7 +172,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void cancelGameRequest_RequestNotMade_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -183,7 +183,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void cancelGameRequest_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -194,7 +194,7 @@ public class GameTest {
         GameUtils.deleteGameRequest(user3, user2, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void cancelGameRequest_InvalidCredentials_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -208,7 +208,7 @@ public class GameTest {
     }
 
     //Respond to Game Request
-    @Test
+    @Test(groups = {"parallel"})
     public void respondToGameRequest_RespondAccept_204GameStartedRequestRemoved() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -221,7 +221,7 @@ public class GameTest {
         GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void respondToGameRequest_RespondDeny_204GameNotStartedRequestRemoved() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -234,7 +234,7 @@ public class GameTest {
         GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void respondToGameRequest_RespondBadFormatting_400GameNotStartedRequestStillThere() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -247,7 +247,7 @@ public class GameTest {
         GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void respondToGameRequest_RespondNoRequest_404NoGameStarted() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -259,7 +259,7 @@ public class GameTest {
         GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void respondToGameRequest_InvalidUser_401GameNotStartedRequestStillThere() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -273,7 +273,7 @@ public class GameTest {
         GameUtils.searchAllGames(user2, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void respondToGameRequest_InvalidCredentials_401GameNotStartedRequestStillThere() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -289,14 +289,14 @@ public class GameTest {
     }
 
     //Check Incoming Game Request
-    @Test
+    @Test(groups = {"parallel"})
     public void checkIncomingGames_NoRequests_200EmptyArray() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.checkIncoming(user, client, HttpStatus.SC_OK, null, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkIncomingGames_OneRequest_200ArrayWithOne() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -307,7 +307,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkIncomingGames_MultipleRequests_200ArrayWithMultiple() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -322,7 +322,7 @@ public class GameTest {
         GameUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1, user3}, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkIncomingGames_OneOutgoing_200EmptyArray() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -333,7 +333,7 @@ public class GameTest {
         GameUtils.checkIncoming(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkIncomingGames_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -345,7 +345,7 @@ public class GameTest {
         GameUtils.checkIncoming(user3, client, HttpStatus.SC_UNAUTHORIZED, null, new User[]{user2, user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkIncomingGames_InvalidCredentials_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -358,14 +358,14 @@ public class GameTest {
     }
 
     //Check Outgoing Game Request
-    @Test
+    @Test(groups = {"parallel"})
     public void checkOutgoingGames_NoRequests_200EmptyArray() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.checkOutgoing(user, client, HttpStatus.SC_OK, null, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkOutgoingGames_200ArrayWithOne() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -376,7 +376,7 @@ public class GameTest {
         GameUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, new User[]{user2}, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkOutgoingGames_200ArrayWithMultiple() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -391,7 +391,7 @@ public class GameTest {
         GameUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, new User[]{user2, user3}, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkOutgoingGames_OneIncoming_200EmptyArray() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -402,7 +402,7 @@ public class GameTest {
         GameUtils.checkOutgoing(user2, client, HttpStatus.SC_OK, null, new User[]{user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkOutgoingGames_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -414,7 +414,7 @@ public class GameTest {
         GameUtils.checkOutgoing(user3, client, HttpStatus.SC_UNAUTHORIZED, null, new User[]{user2, user1});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void checkOutgoingGames_InvalidCredentials_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -427,7 +427,7 @@ public class GameTest {
     }
 
     //Request a Random Game
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_OneRequest_204NoGameCreated() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -436,7 +436,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoMatchingRequests_204GameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -449,7 +449,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoMismatchingRequests_204NoGameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -462,7 +462,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoMatchingAlreadyInGame_204NoGameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -479,7 +479,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoFriendsMatching_204GameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -494,7 +494,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoRandomMatching_204GameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -507,7 +507,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoMatchingBlocked_204NoGameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -521,7 +521,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user2, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoMismatchThenThirdMatch_204OneGameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -538,7 +538,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user3, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_TwoBlockedMatchedThenNonBlockMatch_204OneGameCreated() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -554,7 +554,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user3, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -563,7 +563,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user1, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_InvalidCredentials_401() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -573,7 +573,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void requestRandomGame_GameSizeIllegalNumber_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -582,7 +582,7 @@ public class GameTest {
     }
 
     //Cancel a Random Game Request
-    @Test
+    @Test(groups = {"serial"})
     public void cancelRandomRequest_BasicRequest_204RequestRemoved() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -591,14 +591,14 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void cancelRandomRequest_RequestNotMade_404() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.deleteRandomGameRequest(user, client, HttpStatus.SC_NOT_FOUND);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void cancelRandomRequest_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -606,7 +606,7 @@ public class GameTest {
         GameUtils.deleteRandomGameRequest(user2, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void cancelRandomRequest_InvalidCredentials_401() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -618,7 +618,7 @@ public class GameTest {
     }
 
     //Check Random Game Request
-    @Test
+    @Test(groups = {"serial"})
     public void checkRandomRequest_BasicRequest_200Size() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -627,7 +627,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void checkRandomRequest_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -637,7 +637,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user1, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void checkRandomRequest_InvalidCredentials_401() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -648,7 +648,7 @@ public class GameTest {
         GameUtils.rawDeleteRandomGameRequest(user, client);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void checkRandomRequest_RequestNotMade_404() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -657,14 +657,14 @@ public class GameTest {
     }
 
     //List Games
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_NoParametersNoGames_200EmptyArray() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchAllGames(user, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_NoParametersOneGame_200ArrayWithOne() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -676,7 +676,7 @@ public class GameTest {
         GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_NoParametersMultipleGames_200ArrayWithMultiple() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -693,7 +693,7 @@ public class GameTest {
         GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_AllParameters_200ArrayWithSelected() throws IOException, InterruptedException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -716,7 +716,7 @@ public class GameTest {
         GameUtils.searchGames(user1, user2.getUserId(), start, end, "COMPLETE", null, "3", "ME", "BLACK", client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_ValidOpponents_200ArrayWithOpponents() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -733,7 +733,7 @@ public class GameTest {
         GameUtils.searchGames(user1, user3.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidOpponents_404EmptyArray() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -746,7 +746,7 @@ public class GameTest {
         GameUtils.searchGames(user1, user3.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidAndValidOpponents_404ArrayWithValid() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -759,7 +759,7 @@ public class GameTest {
         GameUtils.searchGames(user1, user3.getUserId() + "," + user2.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_NOT_FOUND, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_OpponentWithNoGame_200EmptyArray() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -767,7 +767,7 @@ public class GameTest {
         GameUtils.searchGames(user1, user2.getUserId(), null, null, null, null, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_StartInPast_200GamesFromPastOn() throws IOException, InterruptedException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -791,7 +791,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, start, null, null, null, null, null, null, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_StartInCurrent_200EmptyArray() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -804,7 +804,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, start, null, null, null, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_StartInFuture_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -813,7 +813,7 @@ public class GameTest {
         GameUtils.searchGames(user, null, calendar.getTime(), null, null, null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_EndTimeNormal_200GamesBeforeTime() throws IOException, InterruptedException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -837,7 +837,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, end, null, null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_EndTimeBeforeAll_200EmptyArray() throws IOException, InterruptedException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -851,7 +851,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, end, null, null, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_EndTimeInFuture_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -860,7 +860,7 @@ public class GameTest {
         GameUtils.searchGames(user, null, null, calendar.getTime(), null, null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_StartAndEnd_200GamesBetween() throws IOException, InterruptedException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -891,7 +891,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, start, end, null, null, null, null, null, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_StartAfterEnd_400() throws IOException, InterruptedException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -901,7 +901,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, start, end, null, null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_CompleteGames_200OnlyComplete() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -921,7 +921,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, "COMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_IncompleteGames_200OnlyIncomplete() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -941,14 +941,14 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, "INCOMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidCompleteGames_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, "YES", null, null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_PendingGames_200OnlyPending() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -970,7 +970,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, "PENDING", null, null, null, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_NotPendingGames_200OnlyNotPending() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -992,14 +992,14 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, "NOT_PENDING", null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidPendingGames_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, "YES", null, null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_WinnerGames_200OnlyWinner() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1018,7 +1018,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, null, null, "ME", null, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_NotWinnerGames_200OnlyNotWinner() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1037,14 +1037,14 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, null, null, "THEM", null, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidWinnerGames_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, null, "NO_ONE", null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_WhiteGames_200OnlyWhite() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1066,7 +1066,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, null, null, null, "WHITE", client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_BlackGames_200OnlyBlack() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1088,14 +1088,14 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, null, null, null, "BLACK", client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidColorGames_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, null, null, "GRAY", client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_OneSize_200GamesWithSize() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1117,7 +1117,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, null, "5", null, null, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_MultipleSizes_200GamesWithAllSize() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1139,21 +1139,21 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, null, null, "5,4", null, null, client, HttpStatus.SC_OK, 2);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_SizeBadNumber_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, "7", null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_GoodAndBadSizes_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.searchGames(user, null, null, null, null, null, "7,5", null, null, client, HttpStatus.SC_BAD_REQUEST, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidUser_403() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1161,7 +1161,7 @@ public class GameTest {
         GameUtils.searchAllGames(user2, client, HttpStatus.SC_UNAUTHORIZED, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void listGames_InvalidCredentials_403() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1170,7 +1170,7 @@ public class GameTest {
     }
 
     //Get Info on a Game
-    @Test
+    @Test(groups = {"parallel"})
     public void getGame_ValidGame_200GameInfo() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1185,7 +1185,7 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{turn});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getGame_NotYourGame_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1199,7 +1199,7 @@ public class GameTest {
         GameUtils.getGame(user3, gameId, client, HttpStatus.SC_NOT_FOUND, null, null, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getGame_NotRealGame_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1211,7 +1211,7 @@ public class GameTest {
         GameUtils.getGame(user1, "0000000000000000000000000", client, HttpStatus.SC_NOT_FOUND, null, null, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getGame_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1227,7 +1227,7 @@ public class GameTest {
         GameUtils.getGame(user3, gameId, client, HttpStatus.SC_UNAUTHORIZED, null, null, null);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getGame_InvalidCredentials_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1244,7 +1244,7 @@ public class GameTest {
     }
 
     //Get Possible Next Turns For Game
-    @Test
+    @Test(groups = {"parallel"})
     public void getPossibleTurns_YourTurn_200PossibleTurns() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1257,7 +1257,7 @@ public class GameTest {
         GameUtils.getPossibleMoves(user1, gameId, client, HttpStatus.SC_OK, 25);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getPossibleTurns_TheirTurn_403() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1270,7 +1270,7 @@ public class GameTest {
         GameUtils.getPossibleMoves(user2, gameId, client, HttpStatus.SC_FORBIDDEN, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getPossibleTurns_FinishedGame_200Empty() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1282,7 +1282,7 @@ public class GameTest {
         GameUtils.getPossibleMoves(user2, gameId, client, HttpStatus.SC_OK, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getPossibleTurns_NotYourGame_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1296,14 +1296,14 @@ public class GameTest {
         GameUtils.getPossibleMoves(user3, gameId, client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getPossibleTurns_InvalidGame_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.getPossibleMoves(user1, "0000000000000000000000000", client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getPossibleTurns_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1317,7 +1317,7 @@ public class GameTest {
         GameUtils.getPossibleMoves(user3, gameId, client, HttpStatus.SC_UNAUTHORIZED, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getPossibleTurns_InvalidCredential_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1332,7 +1332,7 @@ public class GameTest {
     }
 
     //Play Turn
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_YourTurn_204TurnMadeConfirmationOfTurn() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1347,7 +1347,7 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{turn});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_NotYourTurn_403TurnNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1362,7 +1362,7 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_NotYourGame_404TurnNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1378,14 +1378,14 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_InvalidGame_404() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.playTurn(user, "0000000000000000000000000", "ps b1", client, HttpStatus.SC_NOT_FOUND);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_IllegalTurn_403TurnNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1401,7 +1401,7 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{turn});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_IllFormattedTurn_400TurnNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1417,7 +1417,7 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{turn});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_WinGame_204GameMarkedWin() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1428,7 +1428,7 @@ public class GameTest {
         GameUtils.searchGames(user1, null, null, null, "COMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_InvalidUser_401TurnNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1444,7 +1444,7 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_InvalidCredentials_401TurnNotMade() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1461,7 +1461,7 @@ public class GameTest {
         GameUtils.getGame(user1, gameId, client, HttpStatus.SC_OK, user1, user2, new String[]{});
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void playTurn_CheckRatingAfterGame_200RatingsAccurate() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1482,7 +1482,7 @@ public class GameTest {
     }
 
     //Get Notifications
-    @Test
+    @Test(groups = {"parallel"})
     public void getNotifications_NoRequests_200RequestsFieldZero() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1492,7 +1492,7 @@ public class GameTest {
         GameUtils.checkGameNotifications(user1, client, HttpStatus.SC_OK, 0, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getNotifications_NonZeroRequests_200RequestsFieldMoreThanZero() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1503,7 +1503,7 @@ public class GameTest {
         GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_OK, 1, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getNotifications_NoGames_200YourTurnFieldZero() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1513,7 +1513,7 @@ public class GameTest {
         GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_OK, 0, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getNotifications_GamesNoneYourTurn_200YourTurnFieldZero() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1525,7 +1525,7 @@ public class GameTest {
         GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_OK, 0, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getNotifications_GamesSomeYourTurn_200YourTurnFieldOnlyYourTurn() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1542,7 +1542,7 @@ public class GameTest {
         GameUtils.checkGameNotifications(user1, client, HttpStatus.SC_OK, 0, 1);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getNotifications_InvalidUser_401() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1550,7 +1550,7 @@ public class GameTest {
         GameUtils.checkGameNotifications(user2, client, HttpStatus.SC_UNAUTHORIZED, 0, 0);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void getNotifications_InvalidCredential_401() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);

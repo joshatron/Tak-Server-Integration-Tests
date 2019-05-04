@@ -1,4 +1,4 @@
-<suite parallel="methods" thread-count="10" name="Account Suite">
+<suite parallel="methods" thread-count="20" name="Account Suite">
     <test name="Account Test">
         <classes>
             <class name="io.joshatron.tak.server.logic.AccountTest"/>

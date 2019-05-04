@@ -15,7 +15,7 @@ public class AdminTest {
 
     private HttpClient client;
 
-    @BeforeSuite
+    @BeforeSuite(groups = {"parallel", "serial"})
     public void initializeSuite() throws IOException {
         client = HttpUtils.createHttpClient();
         HttpUtils.initializeAdminAccount(client);
@@ -26,27 +26,27 @@ public class AdminTest {
     }
 
     //Change Password
-    @Test
+    @Test(groups = {"serial"})
     public void changePassword_Normal_204PasswordChanged() throws IOException {
         String test = getTest();
         AdminUtils.changePassword(ADMIN, "other_pass", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.changePassword(new User("admin", "other_pass"), "password", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void changePassword_WrongPassword_401PasswordNotChanged() throws IOException {
         String test = getTest();
         AdminUtils.changePassword(new User("admin", "other_pass"), "new_pass", client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"serial"})
     public void changePassword_WrongUsername_401PasswordNotChanged() throws IOException {
         String test = getTest();
         AdminUtils.changePassword(new User("notAdmin", "password"), "new_pass", client, HttpStatus.SC_UNAUTHORIZED);
     }
 
     //Reset User Password
-    @Test
+    @Test(groups = {"parallel"})
     public void resetUserPassword_Normal_200UserPasswordChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -54,7 +54,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void resetUserPassword_MultipleUsers_200UserPasswordChanged() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -63,7 +63,7 @@ public class AdminTest {
         AccountUtils.authenticate(user1, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void resetUserPassword_InvalidPassword_401UserPasswordNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -71,7 +71,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void resetUserPassword_InvalidUser_404UserPasswordNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -80,7 +80,7 @@ public class AdminTest {
     }
 
     //Ban User
-    @Test
+    @Test(groups = {"parallel"})
     public void banUser_Normal_200UserBanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -88,7 +88,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void banUser_MultipleUsers_200UserBanned() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -98,7 +98,7 @@ public class AdminTest {
         AccountUtils.authenticate(user2, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void banUser_InvalidPassword_401UserNotBanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -106,7 +106,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void banUser_InvalidUserToBan_404UserNotBanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -114,7 +114,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void banUser_UserBanned_403UserStillBanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -125,7 +125,7 @@ public class AdminTest {
     }
 
     //Unban User
-    @Test
+    @Test(groups = {"parallel"})
     public void unbanUser_Normal_200UserUnbanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -135,7 +135,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unbanUser_MultipleUsers_200UserUnbanned() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -148,7 +148,7 @@ public class AdminTest {
         AccountUtils.authenticate(user2, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unbanUser_InvalidPassword_401UserNotUnbanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -158,7 +158,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unbanUser_InvalidUserToUnban_404UserNotUnbanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -168,7 +168,7 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unbanUser_NotBanned_403UserNotUnbanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -177,47 +177,47 @@ public class AdminTest {
     }
 
     //Unlock user
-    @Test
+    @Test(groups = {"parallel"})
     public void unlockUser_Normal_204UserUnlocked() throws IOException {
         String test = getTest();
 
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unlockUser_MultipleUsers_204UserUnlocked() throws IOException {
         String test = getTest();
 
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unlockUser_NotLocked_403UserStillUnlocked() throws IOException {
         String test = getTest();
 
     }
 
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unlockUser_Banned_403NotLockedStillBanned() throws IOException {
         String test = getTest();
 
     }
 
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unlockUser_LockedThenBanned_403NotLockedStillBanned() throws IOException {
         String test = getTest();
 
     }
 
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unlockUser_InvalidPassword_401NotUnlocked() throws IOException {
         String test = getTest();
 
     }
 
 
-    @Test
+    @Test(groups = {"parallel"})
     public void unlockUser_InvalidUser_404NothingUnlocked() throws IOException {
         String test = getTest();
 

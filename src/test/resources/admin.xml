@@ -1,7 +1,6 @@
 <suite name="Admin Suite">
-    <test name="Admin Test">
-        <classes>
-            <class name="io.joshatron.tak.server.logic.AdminTest"/>
-        </classes>
-    </test>
+    <suite-files>
+        <suite-file path="admin-parallel.xml"/>
+        <suite-file path="admin-serial.xml"/>
+    </suite-files>
 </suite>
