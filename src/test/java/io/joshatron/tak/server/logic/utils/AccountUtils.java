@@ -9,6 +9,8 @@ import java.io.IOException;
 
 public class AccountUtils {
 
+    public final static int TRIES_TO_LOCK = 5;
+
     public static User addUser(String test, String user, String password, HttpClient client, int expected) throws IOException {
         Response response;
         if(test == null || user == null) {
@@ -69,6 +71,18 @@ public class AccountUtils {
             response = HttpUtils.authenticate(null, null, client);
         }
         Assert.assertEquals(response.getStatus(), expected);
+    }
+
+    public static void authenticate(User user, HttpClient client, int expected, String exception) throws IOException {
+        Response response;
+        if(user != null) {
+            response = HttpUtils.authenticate(user.getUsername(), user.getPassword(), client);
+        }
+        else {
+            response = HttpUtils.authenticate(null, null, client);
+        }
+        Assert.assertEquals(response.getStatus(), expected);
+        Assert.assertTrue(response.getContents().contains(exception));
     }
 
     public static UserInfo seachUsers(String username, String userId, HttpClient client, int expected) throws IOException {

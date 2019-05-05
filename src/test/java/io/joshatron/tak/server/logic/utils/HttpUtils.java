@@ -814,4 +814,17 @@ public class HttpUtils {
 
         return response;
     }
+
+    public static Response unlockUser(String username, String password, String user, HttpClient client) throws IOException {
+        HttpPost request = new HttpPost(baseUrl + "/admin/user/" + user + "/unlock");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
+    }
 }

@@ -235,12 +235,12 @@ public class AccountTest {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         user.setPassword("drowssap");
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < AccountUtils.TRIES_TO_LOCK; i++) {
             AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
         }
-        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
         user.setPassword("password");
-        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
     }
 
     //Search User

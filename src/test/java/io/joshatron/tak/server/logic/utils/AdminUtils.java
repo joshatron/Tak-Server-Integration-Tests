@@ -69,4 +69,15 @@ public class AdminUtils {
         }
         Assert.assertEquals(response.getStatus(), expected);
     }
+
+    public static void unlockUser(User user, String toUnlock, HttpClient client, int expected) throws IOException {
+        Response response;
+        if(user != null) {
+            response = HttpUtils.unlockUser(user.getUsername(), user.getPassword(), toUnlock, client);
+        }
+        else {
+            response = HttpUtils.unlockUser(null, null, toUnlock, client);
+        }
+        Assert.assertEquals(response.getStatus(), expected);
+    }
 }

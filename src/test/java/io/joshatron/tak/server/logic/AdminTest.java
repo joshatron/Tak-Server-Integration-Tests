@@ -85,7 +85,7 @@ public class AdminTest {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test(groups = {"parallel"})
@@ -94,7 +94,7 @@ public class AdminTest {
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user1.getUserId(), client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.authenticate(user1, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user1, client, HttpStatus.SC_FORBIDDEN);
         AccountUtils.authenticate(user2, client, HttpStatus.SC_NO_CONTENT);
     }
 
@@ -119,9 +119,9 @@ public class AdminTest {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_FORBIDDEN);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
     }
 
     //Unban User
@@ -130,7 +130,7 @@ public class AdminTest {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
         AdminUtils.unbanUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
@@ -141,7 +141,7 @@ public class AdminTest {
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user1.getUserId(), client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.authenticate(user1, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user1, client, HttpStatus.SC_FORBIDDEN);
         AccountUtils.authenticate(user2, client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.unbanUser(ADMIN, user1.getUserId(), client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.authenticate(user1, client, HttpStatus.SC_NO_CONTENT);
@@ -153,9 +153,9 @@ public class AdminTest {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
         AdminUtils.unbanUser(new User("admin", "drowssap"), user.getUserId(), client, HttpStatus.SC_UNAUTHORIZED);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test(groups = {"parallel"})
@@ -163,9 +163,9 @@ public class AdminTest {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
         AdminUtils.unbanUser(ADMIN, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
-        AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
     }
 
     @Test(groups = {"parallel"})
@@ -176,50 +176,94 @@ public class AdminTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
+    private void lockUser(User u) throws IOException {
+        User user = new User(u.getUsername(), u.getPassword() + "_not", u.getUserId());
+
+        for(int i = 0; i < AccountUtils.TRIES_TO_LOCK; i++) {
+            AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        }
+    }
+
     //Unlock user
     @Test(groups = {"parallel"})
     public void unlockUser_Normal_204UserUnlocked() throws IOException {
         String test = getTest();
-
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        lockUser(user);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
+        AdminUtils.unlockUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
     @Test(groups = {"parallel"})
     public void unlockUser_MultipleUsers_204UserUnlocked() throws IOException {
         String test = getTest();
-
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        lockUser(user1);
+        lockUser(user2);
+        AccountUtils.authenticate(user1, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
+        AccountUtils.authenticate(user2, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
+        AdminUtils.unlockUser(ADMIN, user1.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user1, client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user2, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
     }
 
     @Test(groups = {"parallel"})
     public void unlockUser_NotLocked_403UserStillUnlocked() throws IOException {
         String test = getTest();
-
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.unlockUser(ADMIN, user.getUserId(), client, HttpStatus.SC_FORBIDDEN);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
 
     @Test(groups = {"parallel"})
     public void unlockUser_Banned_403NotLockedStillBanned() throws IOException {
         String test = getTest();
-
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "BANNED");
+        AdminUtils.unlockUser(ADMIN, user.getUserId(), client, HttpStatus.SC_FORBIDDEN);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "BANNED");
     }
 
 
     @Test(groups = {"parallel"})
     public void unlockUser_LockedThenBanned_403NotLockedStillBanned() throws IOException {
         String test = getTest();
-
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        lockUser(user);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
+        AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "BANNED");
+        AdminUtils.unlockUser(ADMIN, user.getUserId(), client, HttpStatus.SC_FORBIDDEN);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "BANNED");
+        AdminUtils.unbanUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
 
     @Test(groups = {"parallel"})
     public void unlockUser_InvalidPassword_401NotUnlocked() throws IOException {
         String test = getTest();
-
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        lockUser(user);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
+        AdminUtils.unlockUser(new User("admin", "not_pass"), user.getUserId(), client, HttpStatus.SC_UNAUTHORIZED);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
     }
 
 
     @Test(groups = {"parallel"})
     public void unlockUser_InvalidUser_404NothingUnlocked() throws IOException {
         String test = getTest();
-
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        lockUser(user);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
+        AdminUtils.unlockUser(ADMIN, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
     }
 }
