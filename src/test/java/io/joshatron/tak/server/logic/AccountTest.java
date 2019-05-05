@@ -1,10 +1,6 @@
 package io.joshatron.tak.server.logic;
 
-import io.joshatron.tak.server.logic.utils.AccountUtils;
-import io.joshatron.tak.server.logic.utils.HttpUtils;
-import io.joshatron.tak.server.logic.utils.RandomUtils;
-import io.joshatron.tak.server.logic.utils.User;
-import io.joshatron.tak.server.logic.utils.UserInfo;
+import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.testng.Assert;
@@ -232,6 +228,19 @@ public class AccountTest {
         User blankPass = new User(user.getUsername(), "", "000000000000000");
         AccountUtils.authenticate(blankName, client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.authenticate(blankPass, client, HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void authenticate_lockedOut_403() throws IOException {
+        String test = getTest();
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        user.setPassword("drowssap");
+        for(int i = 0; i < 5; i++) {
+            AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
+        }
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
+        user.setPassword("password");
+        AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
     }
 
     //Search User
