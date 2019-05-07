@@ -14,7 +14,7 @@ public class AccountTest {
 
     private HttpClient client;
 
-    @BeforeSuite
+    @BeforeSuite(groups = {"parallel"})
     public void initializeSuite() {
         client = HttpUtils.createHttpClient();
     }
@@ -24,13 +24,13 @@ public class AccountTest {
     }
 
     //Register User
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_OneUser_204UserCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_MultipleUsers_204UsersCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -38,7 +38,7 @@ public class AccountTest {
         AccountUtils.addUser(test, "03", "drowssap", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_UserAlreadyCreated_403OnlyOneUserCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -46,42 +46,42 @@ public class AccountTest {
         AccountUtils.addUser(test, "01", "drowssap", client, HttpStatus.SC_FORBIDDEN);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_TryToRegisterWithDifferentCase_403OnlyOneUserCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "aa", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.addUser(test, "AA", "password", client, HttpStatus.SC_FORBIDDEN);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_BlankUsername_400UserNotCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser("", "", "password", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(null, null, "password", client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_BlankPassword_400UserNotCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "01", "", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(test, "02", null, client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_ColonInUsername_400UserNotCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, ":01", "password", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(test, "01:", "password", client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_NonAlphanumericUsername_400UserNotCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "01!", "password", client, HttpStatus.SC_BAD_REQUEST);
         AccountUtils.addUser(test, "01,", "password", client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_ColonInPassword_204UsersCreated() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "01", ":password", client, HttpStatus.SC_NO_CONTENT);
@@ -89,7 +89,7 @@ public class AccountTest {
         AccountUtils.addUser(test, "03", "password:", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void registerUser_CheckInitialRating_200Rating1000() throws IOException {
         String test = getTest();
         AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -98,14 +98,14 @@ public class AccountTest {
     }
 
     //Change Username
-    @Test
+    @Test(groups = {"parallel"})
     public void changeUsername_OneUser_204UsernameChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.changeUsername(user, test + "02", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changeUsername_WrongPassword_401UsernameNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -113,7 +113,7 @@ public class AccountTest {
         AccountUtils.changeUsername(user, test + "02", client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changeUsername_InvalidUser_401UsernameNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -121,7 +121,7 @@ public class AccountTest {
         AccountUtils.changeUsername(user, test + "03", client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changeUsername_BlankFields_400UsernameNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -129,7 +129,7 @@ public class AccountTest {
         AccountUtils.changeUsername(user, null, client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changeUsername_MultipleUsers_204UsernamesChanged() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -138,7 +138,7 @@ public class AccountTest {
         AccountUtils.changePassword(user2, test + "04", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changeUsername_OtherUserUsername_403UsernameNotChanged() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -147,14 +147,14 @@ public class AccountTest {
     }
 
     //Change Password
-    @Test
+    @Test(groups = {"parallel"})
     public void changePassword_OneUser_204PasswordChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.changePassword(user, "drowssap", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changePassword_WrongPassword_401PasswordNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -162,7 +162,7 @@ public class AccountTest {
         AccountUtils.changePassword(user, "drowssap", client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changePassword_InvalidUser_401PasswordNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -170,7 +170,7 @@ public class AccountTest {
         AccountUtils.changePassword(user, "drowssap", client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changePassword_BlankFields_400PasswordNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -178,7 +178,7 @@ public class AccountTest {
         AccountUtils.changePassword(user, null, client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changePassword_MultipleUsers_204PasswordsChanged() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -187,7 +187,7 @@ public class AccountTest {
         AccountUtils.changePassword(user2, "87654321", client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void changePassword_OtherUserPassword_401PasswordsNotChanged() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -197,14 +197,14 @@ public class AccountTest {
     }
 
     //Authenticate User
-    @Test
+    @Test(groups = {"parallel"})
     public void authenticate_Valid_204() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void authenticate_WrongPassword_401() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -212,7 +212,7 @@ public class AccountTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void authenticate_InvalidUser_401() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -220,7 +220,7 @@ public class AccountTest {
         AccountUtils.authenticate(user, client, HttpStatus.SC_UNAUTHORIZED);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void authenticate_BlankFields_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -230,7 +230,7 @@ public class AccountTest {
         AccountUtils.authenticate(blankPass, client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void authenticate_lockedOut_403() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -244,7 +244,7 @@ public class AccountTest {
     }
 
     //Search User
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_ExistingUserFromUsername_200ExpectedUser() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -252,7 +252,7 @@ public class AccountTest {
         Assert.assertEquals(user.getUsername(), info.getUsername());
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_ExistingUserFromUserId_200ExpectedUser() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -261,42 +261,42 @@ public class AccountTest {
         Assert.assertEquals(user.getUsername(), info2.getUsername());
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_invalidUsername_404() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.seachUsers(test + "02", null, client, HttpStatus.SC_NOT_FOUND);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_invalidUserId_404() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.seachUsers(null, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_invalidUserIdLength_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.seachUsers(null, "0000000", client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_BlankUsername_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.seachUsers("", null, client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_bothNull_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.seachUsers(null, null, client, HttpStatus.SC_BAD_REQUEST);
     }
 
-    @Test
+    @Test(groups = {"parallel"})
     public void searchUser_bothFilled_400() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
