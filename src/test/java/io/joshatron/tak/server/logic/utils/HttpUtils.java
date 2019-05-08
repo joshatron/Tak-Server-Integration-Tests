@@ -418,55 +418,6 @@ public class HttpUtils {
         return response;
     }
 
-    public static Response markRead(String username, String password, String[] ids, User[] senders, HttpClient client) throws IOException {
-        StringBuilder payload = new StringBuilder("{");
-        if(ids != null) {
-            payload.append("\"ids\": [");
-            boolean first = true;
-            for(String id : ids) {
-                if(!first) {
-                    payload.append(",");
-                }
-                payload.append("\"");
-                payload.append(id);
-                payload.append("\"");
-                first = false;
-            }
-            payload.append("]");
-            if(senders != null && senders.length > 0) {
-                payload.append(",");
-            }
-        }
-        if(senders != null && senders.length > 0) {
-            payload.append("\"senders\": [");
-            boolean first = true;
-            for(User sender : senders) {
-                if(!first) {
-                    payload.append(",");
-                }
-                payload.append("\"");
-                payload.append(sender.getUserId());
-                payload.append("\"");
-                first = false;
-            }
-            payload.append("]");
-        }
-        payload.append("}");
-
-        HttpPost request = new HttpPost(baseUrl + "/social/message/mark-read");
-        if(username != null && password != null) {
-            request.setHeader("Authorization", getBasicAuthString(username, password));
-        }
-        StringEntity entity = new StringEntity(payload.toString(), ContentType.APPLICATION_JSON);
-        request.setEntity(entity);
-
-        Response response = new Response(client.execute(request));
-
-        request.releaseConnection();
-
-        return response;
-    }
-
     public static Response getSocialNotifications(String username, String password, HttpClient client) throws IOException {
         HttpGet request = new HttpGet(baseUrl + "/social/notifications");
         if(username != null && password != null) {

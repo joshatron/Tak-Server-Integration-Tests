@@ -145,11 +145,6 @@ public class SocialUtils {
         return searchMessages(user, null, null, null, null, null, client, expected, numExpected);
     }
 
-    public static void markMessagesRead(User user, String[] ids, User[] senders, HttpClient client, int expected) throws IOException {
-        Response response = HttpUtils.markRead(user.getUsername(), user.getPassword(), ids, senders, client);
-        Assert.assertEquals(response.getStatus(), expected);
-    }
-
     public static void checkSocialNotifications(User user, HttpClient client, int expected, int expectedRequests, int expectedMessages) throws IOException {
         Response response = HttpUtils.getSocialNotifications(user.getUsername(), user.getPassword(), client);
         Assert.assertEquals(response.getStatus(), expected);
