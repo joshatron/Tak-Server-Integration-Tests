@@ -646,8 +646,14 @@ public class HttpUtils {
         return response;
     }
 
-    public static Response getGame(String username, String gameId, String password, HttpClient client) throws IOException {
-        HttpGet request = new HttpGet(baseUrl + "/games/game/" + gameId);
+    public static Response getGame(String username, String gameId, String password, boolean full, HttpClient client) throws IOException {
+        HttpGet request;
+        if(full) {
+            request = new HttpGet(baseUrl + "/games/game/" + gameId + "?full=true");
+        }
+        else {
+            request = new HttpGet(baseUrl + "/games/game/" + gameId);
+        }
         if(username != null && password != null) {
             request.setHeader("Authorization", getBasicAuthString(username, password));
         }

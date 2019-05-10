@@ -108,7 +108,11 @@ public class GameUtils {
     }
 
     public static void getGame(User requester, String gameId, HttpClient client, int expected, User expectedWhite, User expectedBlack, String[] expectedTurns) throws IOException {
-        Response response = HttpUtils.getGame(requester.getUsername(), gameId, requester.getPassword(), client);
+        getGame(requester, gameId, false, client, expected, expectedWhite, expectedBlack, expectedTurns);
+    }
+
+    public static void getGame(User requester, String gameId, boolean full, HttpClient client, int expected, User expectedWhite, User expectedBlack, String[] expectedTurns) throws IOException {
+        Response response = HttpUtils.getGame(requester.getUsername(), gameId, requester.getPassword(), full, client);
         Assert.assertEquals(response.getStatus(), expected);
         if(response.getStatus() == HttpStatus.SC_OK) {
             JSONObject json = new JSONObject(response.getContents());
