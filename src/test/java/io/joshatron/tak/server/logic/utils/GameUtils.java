@@ -111,7 +111,7 @@ public class GameUtils {
         getGame(requester, gameId, false, client, expected, expectedWhite, expectedBlack, expectedTurns);
     }
 
-    public static void getGame(User requester, String gameId, boolean full, HttpClient client, int expected, User expectedWhite, User expectedBlack, String[] expectedTurns) throws IOException {
+    public static JSONObject getGame(User requester, String gameId, boolean full, HttpClient client, int expected, User expectedWhite, User expectedBlack, String[] expectedTurns) throws IOException {
         Response response = HttpUtils.getGame(requester.getUsername(), gameId, requester.getPassword(), full, client);
         Assert.assertEquals(response.getStatus(), expected);
         if(response.getStatus() == HttpStatus.SC_OK) {
@@ -130,7 +130,11 @@ public class GameUtils {
                     Assert.assertEquals(array.length(), 0);
                 }
             }
+
+            return json;
         }
+
+        return null;
     }
 
     public static void getPossibleMoves(User requester, String gameId, HttpClient client, int expected, int numExpected) throws IOException {
