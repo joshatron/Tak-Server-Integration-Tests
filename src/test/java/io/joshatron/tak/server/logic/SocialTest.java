@@ -1,35 +1,19 @@
 package io.joshatron.tak.server.logic;
 
 import io.joshatron.tak.server.logic.utils.AccountUtils;
-import io.joshatron.tak.server.logic.utils.HttpUtils;
-import io.joshatron.tak.server.logic.utils.RandomUtils;
 import io.joshatron.tak.server.logic.utils.SocialUtils;
 import io.joshatron.tak.server.logic.utils.User;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-//Suite: B
-public class SocialTest {
-
-    private HttpClient client;
-
-    @BeforeSuite(groups = {"parallel"})
-    public void initializeSuite() {
-        client = HttpUtils.createHttpClient();
-    }
-
-    private String getTest() {
-        return "B" + RandomUtils.generateTest(10);
-    }
+public class SocialTest extends BaseTest {
 
     //Create Friend Request
     @Test(groups = {"parallel"})

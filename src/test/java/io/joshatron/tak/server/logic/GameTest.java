@@ -6,20 +6,15 @@ import io.joshatron.tak.engine.game.Player;
 import io.joshatron.tak.engine.turn.TurnUtils;
 import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.json.JSONObject;
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-//Suite: C
-public class GameTest {
-
-    private HttpClient client;
+public class GameTest extends BaseTest {
 
     private String playSimpleGame(User user1, User user2, String requesterColor, String first) throws IOException {
         GameUtils.requestGame(user1, user2, 3, requesterColor, first, client, HttpStatus.SC_NO_CONTENT);
@@ -32,15 +27,6 @@ public class GameTest {
         GameUtils.playTurn(user1, gameId, "ps a3", client, HttpStatus.SC_NO_CONTENT);
 
         return gameId;
-    }
-
-    @BeforeSuite(groups = {"parallel", "serial"})
-    public void initializeSuite() {
-        client = HttpUtils.createHttpClient();
-    }
-
-    private String getTest() {
-        return "C" + RandomUtils.generateTest(10);
     }
 
     //Request a Game

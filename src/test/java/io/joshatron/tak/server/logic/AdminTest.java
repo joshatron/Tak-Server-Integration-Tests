@@ -2,27 +2,20 @@ package io.joshatron.tak.server.logic;
 
 import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 
-//Suite D
-public class AdminTest {
+public class AdminTest extends BaseTest {
 
     private static final User ADMIN = new User("admin", "password");
 
-    private HttpClient client;
-
+    @Override
     @BeforeSuite(groups = {"parallel", "serial"})
     public void initializeSuite() throws IOException {
-        client = HttpUtils.createHttpClient();
+        super.initializeSuite();
         HttpUtils.initializeAdminAccount(client);
-    }
-
-    private String getTest() {
-        return "D" + RandomUtils.generateTest(10);
     }
 
     //Change Password

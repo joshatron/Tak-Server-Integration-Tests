@@ -2,26 +2,12 @@ package io.joshatron.tak.server.logic;
 
 import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 
-//Suite: A
-public class AccountTest {
-
-    private HttpClient client;
-
-    @BeforeSuite(groups = {"parallel"})
-    public void initializeSuite() {
-        client = HttpUtils.createHttpClient();
-    }
-
-    private String getTest() {
-        return "A" + RandomUtils.generateTest(10);
-    }
+public class AccountTest extends BaseTest {
 
     //Register User
     @Test(groups = {"parallel"})
