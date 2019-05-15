@@ -4,4 +4,4 @@ set -e
 
 command -v mvn >/dev/null 2>&1 || { echo >&2 "Maven is required for setup. Aborting."; exit 1; }
 
-mvn clean install
+mvn clean test
