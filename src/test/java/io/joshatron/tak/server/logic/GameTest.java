@@ -1,9 +1,12 @@
 package io.joshatron.tak.server.logic;
 
+import io.joshatron.tak.engine.exception.TakEngineException;
+import io.joshatron.tak.engine.game.GameState;
+import io.joshatron.tak.engine.game.Player;
+import io.joshatron.tak.engine.turn.TurnUtils;
 import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -1246,7 +1249,7 @@ public class GameTest {
     }
 
     @Test(groups = {"parallel"})
-    public void getGame_TestFullState_200() throws IOException {
+    public void getGame_TestFullState_200() throws IOException, TakEngineException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1255,9 +1258,11 @@ public class GameTest {
         GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
         String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
-        String[] turns = {"ps a1", "ps a2", "pc c1", "pw c2", "ms c1 g1 1"};
+        String[] turns = new String[]{"ps a1", "ps a2", "pc c1", "pw c2", "ms c1 g1 1"};
+        GameState state = new GameState(Player.WHITE, 5);
         boolean user1Turn = true;
         for(String turn : turns) {
+            state.executeTurn(TurnUtils.turnFromString(turn));
             if(user1Turn) {
                 GameUtils.playTurn(user1, gameId, turn, client, HttpStatus.SC_NO_CONTENT);
             }
@@ -1268,34 +1273,8 @@ public class GameTest {
         }
         JSONObject json = GameUtils.getGame(user1, gameId, true, client, HttpStatus.SC_OK, user1, user2, turns);
         JSONObject full = json.getJSONObject("fullState");
-        Assert.assertEquals("BLACK", full.getString("current"));
-        Assert.assertEquals(19, full.getInt("blackStones"));
-        Assert.assertEquals(1, full.getInt("blackCapstones"));
-        Assert.assertEquals(20, full.getInt("whiteStones"));
-        Assert.assertEquals(0, full.getInt("whiteCapstones"));
-        Assert.assertEquals(5, full.getInt("size"));
-        Assert.assertEquals("WHITE", full.getString("first"));
-        for(int i = 0; i < turns.length; i++) {
-            Assert.assertEquals(full.getJSONArray("turns").getString(i), turns[i]);
-        }
-        JSONArray board = full.getJSONArray("board");
-        for(int i = 0; i < 5; i++) {
-            JSONArray row = board.getJSONArray(i);
-            for(int j = 0; j < 5; j++) {
-                if(i == 0 && j == 0) {
-                    Assert.assertEquals("S", row.getString(j));
-                }
-                else if(i == 1 && j == 0) {
-                    Assert.assertEquals("s", row.getString(j));
-                }
-                else if(i == 1 && j == 2) {
-                    Assert.assertEquals("cS", row.getString(j));
-                }
-                else {
-                    Assert.assertEquals("", row.getString(j));
-                }
-            }
-        }
+        GameState generated = new GameState(full);
+        Assert.assertEquals(generated, state);
     }
 
     //Get Possible Next Turns For Game
@@ -1523,17 +1502,17 @@ public class GameTest {
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
-        Assert.assertEquals(1000, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
-        Assert.assertEquals(1000, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 1000);
+        Assert.assertEquals(AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 1000);
         playSimpleGame(user1, user2, "WHITE", "WHITE");
-        Assert.assertEquals(1010, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
-        Assert.assertEquals(990, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 1010);
+        Assert.assertEquals(AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 990);
         playSimpleGame(user1, user2, "WHITE", "WHITE");
-        Assert.assertEquals(1019, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
-        Assert.assertEquals(981, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 1019);
+        Assert.assertEquals(AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 981);
         playSimpleGame(user2, user1, "WHITE", "WHITE");
-        Assert.assertEquals(1008, AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating());
-        Assert.assertEquals(992, AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating());
+        Assert.assertEquals(AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 1008);
+        Assert.assertEquals(AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 992);
     }
 
     //Get Notifications

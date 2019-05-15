@@ -94,7 +94,7 @@ public class AccountTest {
         String test = getTest();
         AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         UserInfo info = AccountUtils.seachUsers(test + "01", null, client, HttpStatus.SC_OK);
-        Assert.assertEquals(1000, info.getRating());
+        Assert.assertEquals(info.getRating(), 1000);
     }
 
     //Change Username
@@ -249,7 +249,7 @@ public class AccountTest {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         UserInfo info = AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);
-        Assert.assertEquals(user.getUsername(), info.getUsername());
+        Assert.assertEquals(info.getUsername(), user.getUsername());
     }
 
     @Test(groups = {"parallel"})
@@ -258,7 +258,7 @@ public class AccountTest {
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         UserInfo info = AccountUtils.seachUsers(user.getUsername(), null, client, HttpStatus.SC_OK);
         UserInfo info2 = AccountUtils.seachUsers(null, info.getUserId(), client, HttpStatus.SC_OK);
-        Assert.assertEquals(user.getUsername(), info2.getUsername());
+        Assert.assertEquals(info2.getUsername(), user.getUsername());
     }
 
     @Test(groups = {"parallel"})
