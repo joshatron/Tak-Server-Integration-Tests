@@ -1263,6 +1263,26 @@ public class GameTest extends BaseTest {
         Assert.assertEquals(generated, state);
     }
 
+    @Test(groups = {"parallel"})
+    public void getGame_TestSendMessageToGame_200() throws IOException, TakEngineException {
+        String test = getTest();
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.sendGameMessage(user1, gameId, "Message 1", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.sendGameMessage(user1, gameId, "Message 2", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.sendGameMessage(user2, gameId, "Message 3", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.sendGameMessage(user1, gameId, "Message 4", client, HttpStatus.SC_NO_CONTENT);
+        JSONObject json = GameUtils.getGame(user1, gameId, true, client, HttpStatus.SC_OK, user1, user2, new String[]{});
+        for(int i = 0; i < json.getJSONArray("messages").length(); i++) {
+            Assert.assertEquals(json.getJSONArray("messages").getJSONObject(i).getString("message"), "Message " + (i + 1));
+        }
+    }
+
     //Get Possible Next Turns For Game
     @Test(groups = {"parallel"})
     public void getPossibleTurns_YourTurn_200PossibleTurns() throws IOException {

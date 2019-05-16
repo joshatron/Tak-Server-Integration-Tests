@@ -162,4 +162,9 @@ public class GameUtils {
             Assert.assertEquals(json.getInt("pendingGames"), expectedGames);
         }
     }
+
+    public static void sendGameMessage(User requester, String gameId, String message, HttpClient client, int expected) throws IOException {
+        Response response = HttpUtils.sendGameMessage(requester.getUsername(), gameId, message, requester.getPassword(), client);
+        Assert.assertEquals(response.getStatus(), expected);
+    }
 }

@@ -708,6 +708,23 @@ public class HttpUtils {
         return response;
     }
 
+    public static Response sendGameMessage(String username, String gameId, String message, String password, HttpClient client) throws IOException {
+        String payload = "{\"text\": \"" + message + "\"}";
+
+        HttpPost request = new HttpPost(baseUrl + "/games/game/" + gameId + "/send-message");
+        if(username != null && password != null) {
+            request.setHeader("Authorization", getBasicAuthString(username, password));
+        }
+        StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        request.setEntity(entity);
+
+        Response response = new Response(client.execute(request));
+
+        request.releaseConnection();
+
+        return response;
+    }
+
     public static Response initializeAdminAccount(HttpClient client) throws IOException {
         HttpPost request = new HttpPost(baseUrl + "/admin/initialize");
 
