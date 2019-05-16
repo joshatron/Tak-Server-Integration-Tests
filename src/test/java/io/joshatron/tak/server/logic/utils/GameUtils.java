@@ -95,8 +95,9 @@ public class GameUtils {
             if(numExpected >= 0) {
                 JSONArray array = new JSONArray(contents);
                 Assert.assertEquals(array.length(), numExpected);
-                return array;
             }
+
+            return new JSONArray(contents);
         }
 
         return null;
@@ -120,14 +121,9 @@ public class GameUtils {
             Assert.assertEquals(json.getString("black"), expectedBlack.getUserId());
             if(expectedTurns != null) {
                 JSONArray array = json.getJSONArray("turns");
+                Assert.assertEquals(array.length(), expectedTurns.length);
                 for (int i = 0; i < expectedTurns.length; i++) {
                     Assert.assertEquals(array.getString(i), expectedTurns[i]);
-                }
-            }
-            else {
-                JSONArray array = json.getJSONArray("turns");
-                if(array != null) {
-                    Assert.assertEquals(array.length(), 0);
                 }
             }
 

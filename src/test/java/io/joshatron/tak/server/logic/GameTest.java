@@ -6,6 +6,7 @@ import io.joshatron.tak.engine.game.Player;
 import io.joshatron.tak.engine.turn.TurnUtils;
 import io.joshatron.tak.server.logic.utils.*;
 import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -1519,6 +1520,50 @@ public class GameTest extends BaseTest {
         playSimpleGame(user2, user1, "WHITE", "WHITE");
         Assert.assertEquals(AccountUtils.seachUsers(user1.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 1008);
         Assert.assertEquals(AccountUtils.seachUsers(user2.getUsername(), null, client, HttpStatus.SC_OK).getRating(), 992);
+    }
+
+    @Test(groups = {"parallel"})
+    public void playTurn_PlayAiYourTurnFirst_204NormalGame() throws IOException, InterruptedException {
+        String test = getTest();
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user, new User("AI", "AI", "AI"), 3, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        JSONArray games = GameUtils.searchGames(user, "AI", null, null, "INCOMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 1);
+        Assert.assertEquals(games.length(), 1);
+        String gameId = games.getJSONObject(0).getString("gameId");
+        GameUtils.playTurn(user, gameId, "ps a1", client, HttpStatus.SC_NO_CONTENT);
+        waitForAi(user);
+        GameUtils.checkGameNotifications(user, client, HttpStatus.SC_OK, 0, 1);
+        JSONObject game = GameUtils.getGame(user, gameId, false, client, HttpStatus.SC_OK, user, new User("AI", "AI", "AI"), null);
+        Assert.assertEquals(game.getJSONArray("turns").length(), 2);
+    }
+
+    @Test(groups = {"parallel"})
+    public void playTurn_PlayAiTheirTurnFirst_204NormalGame() throws IOException, InterruptedException {
+        String test = getTest();
+        User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user, new User("AI", "AI", "AI"), 3, "WHITE", "BLACK", client, HttpStatus.SC_NO_CONTENT);
+        JSONArray games = GameUtils.searchGames(user, "AI", null, null, "INCOMPLETE", null, null, null, null, client, HttpStatus.SC_OK, 1);
+        Assert.assertEquals(games.length(), 1);
+        String gameId = games.getJSONObject(0).getString("gameId");
+        waitForAi(user);
+        GameUtils.checkGameNotifications(user, client, HttpStatus.SC_OK, 0, 1);
+        GameUtils.playTurn(user, gameId, "ps a1", client, HttpStatus.SC_NO_CONTENT);
+        waitForAi(user);
+        GameUtils.checkGameNotifications(user, client, HttpStatus.SC_OK, 0, 1);
+        JSONObject game = GameUtils.getGame(user, gameId, false, client, HttpStatus.SC_OK, user, new User("AI", "AI", "AI"), null);
+        Assert.assertEquals(game.getJSONArray("turns").length(), 3);
+    }
+
+    private boolean waitForAi(User user) throws InterruptedException, IOException {
+        //Wait for 20 seconds
+        for(int i = 0; i < 40; i++) {
+            Thread.sleep(500);
+            if(GameUtils.searchGames(user, "AI", null, null, "INCOMPLETE", "PENDING", null, null, null, client, HttpStatus.SC_OK, -1).length() == 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //Get Notifications
