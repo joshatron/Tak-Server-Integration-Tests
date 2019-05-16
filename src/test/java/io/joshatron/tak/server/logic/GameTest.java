@@ -1264,8 +1264,9 @@ public class GameTest extends BaseTest {
         Assert.assertEquals(generated, state);
     }
 
+    //Send game message
     @Test(groups = {"parallel"})
-    public void getGame_TestSendMessageToGame_200() throws IOException, TakEngineException {
+    public void sendGameMessage_Normal_204() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
@@ -1282,6 +1283,35 @@ public class GameTest extends BaseTest {
         for(int i = 0; i < json.getJSONArray("messages").length(); i++) {
             Assert.assertEquals(json.getJSONArray("messages").getJSONObject(i).getString("message"), "Message " + (i + 1));
         }
+    }
+
+    @Test(groups = {"parallel"})
+    public void sendGameMessage_SendMessageAfterGame_403() throws IOException, TakEngineException {
+        String test = getTest();
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = playSimpleGame(user1, user2, "WHITE", "WHITE");
+        GameUtils.sendGameMessage(user1, gameId, "Message 1", client, HttpStatus.SC_FORBIDDEN);
+        JSONObject json = GameUtils.getGame(user1, gameId, true, client, HttpStatus.SC_OK, user1, user2, null);
+        Assert.assertEquals(json.getJSONArray("messages").length(), 0);
+    }
+
+    @Test(groups = {"parallel"})
+    public void sendGameMessage_NotYourGame_404() throws IOException {
+        String test = getTest();
+        User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
+        User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
+        SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
+        GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
+        String gameId = GameUtils.searchAllGames(user1, client, HttpStatus.SC_OK, 1).getJSONObject(0).getString("gameId");
+        GameUtils.sendGameMessage(user3, gameId, "Message 1", client, HttpStatus.SC_NOT_FOUND);
+        JSONObject json = GameUtils.getGame(user1, gameId, true, client, HttpStatus.SC_OK, user1, user2, new String[]{});
+        Assert.assertEquals(json.getJSONArray("messages").length(), 0);
     }
 
     //Get Possible Next Turns For Game
@@ -1555,7 +1585,7 @@ public class GameTest extends BaseTest {
     }
 
     private boolean waitForAi(User user) throws InterruptedException, IOException {
-        //Wait for 20 seconds
+        //Wait for up to 20 seconds
         for(int i = 0; i < 40; i++) {
             Thread.sleep(500);
             if(GameUtils.searchGames(user, "AI", null, null, "INCOMPLETE", "PENDING", null, null, null, client, HttpStatus.SC_OK, -1).length() == 1) {
