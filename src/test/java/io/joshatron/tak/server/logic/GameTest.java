@@ -1200,7 +1200,7 @@ public class GameTest extends BaseTest {
         SocialUtils.respondToRequest(user2, user1, "accept", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.requestGame(user1, user2, 5, "WHITE", "WHITE", client, HttpStatus.SC_NO_CONTENT);
         GameUtils.respondToGameRequest(user2, user1, "ACCEPT", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.getGame(user1, "0000000000000000000000000", client, HttpStatus.SC_NOT_FOUND, null, null, null);
+        GameUtils.getGame(user1, ZERO_ID, client, HttpStatus.SC_NOT_FOUND, null, null, null);
     }
 
     @Test(groups = {"parallel"})
@@ -1371,7 +1371,7 @@ public class GameTest extends BaseTest {
     public void getPossibleTurns_InvalidGame_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.getPossibleMoves(user1, "0000000000000000000000000", client, HttpStatus.SC_NOT_FOUND, 0);
+        GameUtils.getPossibleMoves(user1, ZERO_ID, client, HttpStatus.SC_NOT_FOUND, 0);
     }
 
     @Test(groups = {"parallel"})
@@ -1453,7 +1453,7 @@ public class GameTest extends BaseTest {
     public void playTurn_InvalidGame_404() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        GameUtils.playTurn(user, "0000000000000000000000000", "ps b1", client, HttpStatus.SC_NOT_FOUND);
+        GameUtils.playTurn(user, ZERO_ID, "ps b1", client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test(groups = {"parallel"})
@@ -1577,10 +1577,16 @@ public class GameTest extends BaseTest {
         String gameId = games.getJSONObject(0).getString("gameId");
         waitForAi(user);
         GameUtils.checkGameNotifications(user, client, HttpStatus.SC_OK, 0, 1);
-        GameUtils.playTurn(user, gameId, "ps a1", client, HttpStatus.SC_NO_CONTENT);
+        JSONObject game = GameUtils.getGame(user, gameId, false, client, HttpStatus.SC_OK, user, new User("AI", "AI", "AI"), null);
+        if(game.getJSONArray("turns").getString(0).equalsIgnoreCase("ps a1")) {
+            GameUtils.playTurn(user, gameId, "ps a2", client, HttpStatus.SC_NO_CONTENT);
+        }
+        else {
+            GameUtils.playTurn(user, gameId, "ps a1", client, HttpStatus.SC_NO_CONTENT);
+        }
         waitForAi(user);
         GameUtils.checkGameNotifications(user, client, HttpStatus.SC_OK, 0, 1);
-        JSONObject game = GameUtils.getGame(user, gameId, false, client, HttpStatus.SC_OK, user, new User("AI", "AI", "AI"), null);
+        game = GameUtils.getGame(user, gameId, false, client, HttpStatus.SC_OK, user, new User("AI", "AI", "AI"), null);
         Assert.assertEquals(game.getJSONArray("turns").length(), 3);
     }
 

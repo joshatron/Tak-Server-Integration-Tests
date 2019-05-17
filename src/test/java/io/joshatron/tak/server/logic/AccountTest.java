@@ -258,7 +258,7 @@ public class AccountTest extends BaseTest {
     public void searchUser_invalidUserId_404() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.seachUsers(null, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
+        AccountUtils.seachUsers(null, ZERO_ID, client, HttpStatus.SC_NOT_FOUND);
     }
 
     @Test(groups = {"parallel"})

@@ -1,5 +1,7 @@
 package io.joshatron.tak.server.logic.utils;
 
+import io.joshatron.tak.server.logic.BaseTest;
+
 public class User {
 
     private String username;
@@ -15,7 +17,7 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.userId = "000000000000000";
+        this.userId = BaseTest.ZERO_ID;
     }
 
     public String getUsername() {

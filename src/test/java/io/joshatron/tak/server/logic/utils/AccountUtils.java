@@ -106,7 +106,7 @@ public class AccountUtils {
                 Assert.assertEquals(info.getUserId(), userId);
             }
             else {
-                Assert.assertEquals(info.getUserId().length(), 15);
+                Assert.assertEquals(info.getUserId().length(), 36);
             }
 
             return info;

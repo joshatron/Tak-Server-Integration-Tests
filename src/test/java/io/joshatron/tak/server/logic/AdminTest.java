@@ -68,7 +68,7 @@ public class AdminTest extends BaseTest {
     public void resetUserPassword_InvalidUser_404UserPasswordNotChanged() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        AdminUtils.resetUserPassword(ADMIN, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
+        AdminUtils.resetUserPassword(ADMIN, ZERO_ID, client, HttpStatus.SC_NOT_FOUND);
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
@@ -103,7 +103,7 @@ public class AdminTest extends BaseTest {
     public void banUser_InvalidUserToBan_404UserNotBanned() throws IOException {
         String test = getTest();
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        AdminUtils.banUser(ADMIN, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
+        AdminUtils.banUser(ADMIN, ZERO_ID, client, HttpStatus.SC_NOT_FOUND);
         AccountUtils.authenticate(user, client, HttpStatus.SC_NO_CONTENT);
     }
 
@@ -157,7 +157,7 @@ public class AdminTest extends BaseTest {
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         AdminUtils.banUser(ADMIN, user.getUserId(), client, HttpStatus.SC_NO_CONTENT);
         AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
-        AdminUtils.unbanUser(ADMIN, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
+        AdminUtils.unbanUser(ADMIN, ZERO_ID, client, HttpStatus.SC_NOT_FOUND);
         AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN);
     }
 
@@ -256,7 +256,7 @@ public class AdminTest extends BaseTest {
         User user = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         lockUser(user);
         AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
-        AdminUtils.unlockUser(ADMIN, "000000000000000", client, HttpStatus.SC_NOT_FOUND);
+        AdminUtils.unlockUser(ADMIN, ZERO_ID, client, HttpStatus.SC_NOT_FOUND);
         AccountUtils.authenticate(user, client, HttpStatus.SC_FORBIDDEN, "LOCKED");
     }
 }

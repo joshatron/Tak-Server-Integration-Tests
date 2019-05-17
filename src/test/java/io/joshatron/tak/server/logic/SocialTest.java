@@ -90,7 +90,7 @@ public class SocialTest extends BaseTest {
     public void friendRequest_RequestInvalidUser_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user2 = new User(test + "02", "password", "000000000000000");
+        User user2 = new User(test + "02", "password", ZERO_ID);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkOutgoing(user1, client, HttpStatus.SC_OK, null, new User[]{user2});
     }
@@ -124,7 +124,7 @@ public class SocialTest extends BaseTest {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user3 = new User(test + "03", "password", "000000000000000");
+        User user3 = new User(test + "03", "password", ZERO_ID);
         SocialUtils.requestFriend(user1, user2, client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.checkIncoming(user2, client, HttpStatus.SC_OK, new User[]{user1}, null);
         SocialUtils.cancelRequest(user1, user3, client, HttpStatus.SC_NOT_FOUND);
@@ -484,7 +484,7 @@ public class SocialTest extends BaseTest {
     public void blockUser_BlockingInvalidUser_404() throws IOException {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
-        User user2 = new User(test + "02", "password", "000000000000000");
+        User user2 = new User(test + "02", "password", ZERO_ID);
         SocialUtils.blockUser(user1, user2, client, HttpStatus.SC_NOT_FOUND);
         SocialUtils.checkIfBlocked(user1, user2, client, HttpStatus.SC_NOT_FOUND);
     }
@@ -1053,7 +1053,7 @@ public class SocialTest extends BaseTest {
         User user2 = AccountUtils.addUser(test, "02", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.searchMessages(user1, "000000000000000", null, null, null, null, client, HttpStatus.SC_OK, 0);
+        SocialUtils.searchMessages(user1, ZERO_ID, null, null, null, null, client, HttpStatus.SC_OK, 0);
     }
 
     @Test(groups = {"parallel"})
@@ -1064,7 +1064,7 @@ public class SocialTest extends BaseTest {
         User user3 = AccountUtils.addUser(test, "03", "password", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user2, user1, "hello world", client, HttpStatus.SC_NO_CONTENT);
         SocialUtils.sendMessage(user3, user1, "hello world again", client, HttpStatus.SC_NO_CONTENT);
-        SocialUtils.searchMessages(user1, "000000000000000," + user3.getUserId(), null, null, null, null, client, HttpStatus.SC_OK, 1);
+        SocialUtils.searchMessages(user1, ZERO_ID + "," + user3.getUserId(), null, null, null, null, client, HttpStatus.SC_OK, 1);
     }
 
     @Test(groups = {"parallel"})

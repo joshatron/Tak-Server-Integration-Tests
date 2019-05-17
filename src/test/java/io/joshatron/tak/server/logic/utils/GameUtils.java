@@ -34,7 +34,7 @@ public class GameUtils {
             if (included != null && included.length > 0) {
                 for (User include : included) {
                     //Makes sure there is just one occurrence
-                    Assert.assertEquals((contents.length() - contents.replace(include.getUserId(), "").length()) / include.getUsername().length(), 1);
+                    Assert.assertEquals((contents.length() - contents.replace(include.getUserId(), "").length()) / 36, 1);
                 }
             }
             if (excluded != null && excluded.length > 0) {
@@ -53,7 +53,7 @@ public class GameUtils {
             if (included != null && included.length > 0) {
                 for (User include : included) {
                     //Makes sure there is just one occurrence
-                    Assert.assertEquals((contents.length() - contents.replace(include.getUserId(), "").length()) / include.getUsername().length(), 1);
+                    Assert.assertEquals((contents.length() - contents.replace(include.getUserId(), "").length()) / 36, 1);
                 }
             }
             if (excluded != null && excluded.length > 0) {

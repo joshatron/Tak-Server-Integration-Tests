@@ -9,6 +9,7 @@ import java.io.IOException;
 
 public class BaseTest {
 
+    public final static String ZERO_ID = "00000000-0000-0000-0000-000000000000";
     protected HttpClient client;
 
     @BeforeSuite(groups = {"parallel", "serial"})
