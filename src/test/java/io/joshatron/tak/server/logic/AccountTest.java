@@ -129,7 +129,7 @@ public class AccountTest extends BaseTest {
         String test = getTest();
         User user1 = AccountUtils.addUser(test, "01", "password", client, HttpStatus.SC_NO_CONTENT);
         User user2 = AccountUtils.addUser(test, "02", "12345678", client, HttpStatus.SC_NO_CONTENT);
-        AccountUtils.changeUsername(user1, test + "02", client, HttpStatus.SC_FORBIDDEN);
+        AccountUtils.changeUsername(user1, user2.getUsername(), client, HttpStatus.SC_FORBIDDEN);
     }
 
     //Change Password
